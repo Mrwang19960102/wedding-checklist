@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>备婚清单 · 王少松 & 夏梦颖</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#E15B7E">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="备婚清单">
+<style>
+  :root {
+    --primary: #E15B7E;
+    --primary-dark: #C24365;
+    --primary-bg: #FDECF2;
+    --accent: #D9A441;
+    --accent-bg: #FBF3E2;
+    --bg: #FBF5F6;
+    --card: #FFFFFF;
+    --input-bg: #FAF3F5;
+    --text: #33272C;
+    --text2: #7A6A70;
+    --text3: #B0A0A7;
+    --text4: #D9CDD2;
+    --border: #F3E4E8;
+    --divider: #F7EDF0;
+    --error: #F5576C;
+    --success: #3FBF7F;
+    --grad: linear-gradient(135deg, #F3839F 0%, #E15B7E 100%);
+    --grad-hero: linear-gradient(135deg, #F795AC 0%, #E15B7E 60%, #D34A6F 100%);
+    --radius: 16px;
+    --radius-lg: 20px;
+    --shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    --shadow-hero: 0 8px 24px rgba(225, 91, 126, 0.28);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    background: #EFE3E7;
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  #app {
+    max-width: 560px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: linear-gradient(180deg, #F9E3EA 0%, var(--bg) 260px);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  button { font-family: inherit; border: none; background: none; cursor: pointer; }
+  input { font-family: inherit; outline: none; border: none; }
+
+  /* ---------- 顶栏 ---------- */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px 6px;
+  }
+  .topbar-title { font-size: 17px; font-weight: 600; color: var(--text); }
+  .sync {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--text3);
+    background: rgba(255,255,255,.6);
+    padding: 4px 10px; border-radius: 999px;
+  }
+  .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
+  .sync-dot.warn { background: var(--accent); }
+  .sync-dot.err { background: var(--error); }
+
+  main { flex: 1; padding: 0 16px; }
+  .view { display: none; padding-bottom: 110px; }
+  .view.active { display: block; }
+
+  /* ---------- Hero 卡片 ---------- */
+  .hero {
+    margin-top: 10px;
+    padding: 20px;
+    border-radius: var(--radius-lg);
+    background: var(--grad-hero);
+    box-shadow: var(--shadow-hero);
+    color: #fff;
+  }
+  .hero-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .hero-names { font-size: 22px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hero-date { font-size: 12px; color: rgba(255,255,255,.85); margin-top: 3px; }
+  .countdown-badge {
+    flex-shrink: 0; min-width: 74px; text-align: center;
+    background: rgba(255,255,255,.18); border-radius: 14px; padding: 8px 12px;
+  }
+  .countdown-num { font-size: 26px; font-weight: 700; line-height: 1.1; display: block; }
+  .countdown-label { font-size: 11px; color: rgba(255,255,255,.9); }
+  .hero-divider { height: 1px; background: rgba(255,255,255,.25); margin: 14px 0; }
+  .hero-progress-info { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
+  .hero-progress-info span:last-child { color: rgba(255,255,255,.9); }
+
+  .hero-stats { display: flex; align-items: center; justify-content: space-between; }
+  .stat-item { flex: 1; text-align: center; min-width: 0; }
+  .stat-value { display: block; font-size: 18px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .stat-label { display: block; font-size: 11px; color: rgba(255,255,255,.85); margin-top: 2px; }
+
+  /* ---------- 进度条 ---------- */
+  .track { width: 100%; border-radius: 999px; background: var(--divider); overflow: hidden; }
+  .track.white { background: rgba(255,255,255,.32); }
+  .bar { height: 100%; border-radius: 999px; background: var(--grad); transition: width .3s ease; }
+  .track.white .bar { background: #fff; }
+  .bar.danger { background: var(--error); }
+
+  /* ---------- 筛选 chips ---------- */
+  .chips-scroll { margin-top: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .chips-scroll::-webkit-scrollbar { display: none; }
+  .chips-row { display: flex; gap: 8px; white-space: nowrap; padding: 2px; }
+  .chip {
+    flex-shrink: 0;
+    height: 34px; padding: 0 16px;
+    border-radius: 999px;
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--text2); font-size: 13px;
+    display: inline-flex; align-items: center;
+    transition: all .15s ease;
+  }
+  .chip:active { transform: scale(.96); }
+  .chip.active { background: var(--grad); border-color: transparent; color: #fff; font-weight: 500; }
+  .chip.form { background: var(--input-bg); border-color: transparent; }
+  .chip.form.active { background: var(--primary-bg); border-color: var(--primary); color: var(--primary); }
+
+  /* ---------- 卡片 ---------- */
+  .card {
+    margin-top: 12px; padding: 18px;
+    background: var(--card); border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .card-title { font-size: 16px; font-weight: 600; }
+  .card-tip { font-size: 11px; color: var(--text3); }
+
+  /* ---------- 任务 ---------- */
+  .stage-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .stage-title-wrap { display: flex; align-items: center; min-width: 0; }
+  .stage-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--grad); margin-right: 8px; flex-shrink: 0; }
+  .stage-name { font-size: 15px; font-weight: 600; }
+  .stage-time { font-size: 11px; color: var(--text3); margin-left: 8px; flex-shrink: 0; }
+  .stage-count { font-size: 12px; color: var(--text3); flex-shrink: 0; }
+  .task-list { margin-top: 12px; }
+  .task {
+    display: flex; align-items: flex-start;
+    padding: 11px 0; border-bottom: 1px solid var(--divider);
+  }
+  .task:last-child { border-bottom: none; padding-bottom: 0; }
+  .task:first-child { padding-top: 0; }
+  .checkbox {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid var(--border);
+    margin-right: 12px; margin-top: 1px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: transparent; font-size: 13px; font-weight: 700; line-height: 1;
+    transition: all .15s ease; cursor: pointer;
+  }
+  .checkbox:active { transform: scale(.85); }
+  .checkbox.done { background: var(--grad); border-color: transparent; color: #fff; }
+  .task-content { flex: 1; min-width: 0; cursor: pointer; }
+  .task-title-row { display: flex; align-items: center; }
+  .task-title { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .task.done .task-title { color: var(--text3); text-decoration: line-through; }
+  .task-desc { display: block; font-size: 12px; color: var(--text3); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .task.done .task-desc { color: var(--text4); }
+  .custom-tag {
+    flex-shrink: 0; margin-left: 6px; padding: 1px 7px;
+    border-radius: 999px; background: var(--accent-bg); color: var(--accent);
+    font-size: 10px; white-space: nowrap;
+  }
+  .task-del {
+    flex-shrink: 0; width: 26px; height: 26px; margin-left: 4px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text4); font-size: 13px; cursor: pointer;
+  }
+  .task-del:active { opacity: .6; }
+  .empty-tip { display: block; text-align: center; font-size: 13px; color: var(--text3); padding: 18px 0; }
+
+  /* ---------- FAB ---------- */
+  .fab {
+    position: fixed; right: calc(50% - 280px + 16px); bottom: calc(76px + env(safe-area-inset-bottom));
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--grad); color: #fff;
+    font-size: 28px; font-weight: 400; line-height: 1;
+    box-shadow: 0 8px 24px rgba(225, 91, 126, .4);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 40; transition: all .15s ease; padding-bottom: 3px;
+  }
+  .fab:active { transform: scale(.92); }
+  @media (max-width: 592px) { .fab { right: 16px; } }
+
+  /* ---------- 分类预算 ---------- */
+  .cat-row { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--divider); cursor: pointer; }
+  .cat-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .cat-row:active { opacity: .85; }
+  .cat-icon {
+    width: 38px; height: 38px; border-radius: 50%;
+    margin-right: 12px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 15px; font-weight: 600;
+  }
+  .cat-info { flex: 1; min-width: 0; }
+  .cat-name-row { display: flex; align-items: center; justify-content: space-between; }
+  .cat-name { font-size: 14px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cat-amounts { font-size: 12px; color: var(--text3); flex-shrink: 0; margin-left: 8px; }
+  .cat-amounts b { color: var(--text2); font-weight: 500; }
+  .cat-amounts.over b { color: var(--error); font-weight: 600; }
+  .over-tag {
+    flex-shrink: 0; margin-left: 5px; padding: 1px 7px;
+    border-radius: 999px; background: rgba(245,87,108,.1); color: var(--error);
+    font-size: 10px;
+  }
+  .cat-bar { margin-top: 7px; }
+
+  /* ---------- 支出明细 ---------- */
+  .exp-row { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--divider); }
+  .exp-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .exp-info { flex: 1; min-width: 0; }
+  .exp-title-row { display: flex; align-items: center; }
+  .exp-title { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .exp-cat-tag { flex-shrink: 0; margin-left: 6px; padding: 1px 7px; border-radius: 999px; font-size: 10px; white-space: nowrap; }
+  .exp-date { display: block; font-size: 12px; color: var(--text3); margin-top: 2px; }
+  .exp-amount { flex-shrink: 0; margin-left: 8px; font-size: 16px; font-weight: 600; }
+  .exp-del {
+    flex-shrink: 0; width: 26px; height: 26px; margin-left: 4px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text4); font-size: 13px; cursor: pointer;
+  }
+  .exp-del:active { opacity: .6; }
+
+  /* ---------- 底部记账按钮 ---------- */
+  .bottom-action {
+    position: fixed; left: 0; right: 0; bottom: calc(60px + env(safe-area-inset-bottom));
+    max-width: 560px; margin: 0 auto;
+    padding: 8px 16px; z-index: 30;
+    background: linear-gradient(180deg, rgba(251,245,246,0) 0%, var(--bg) 30%);
+  }
+  .btn-primary {
+    width: 100%; height: 48px; border-radius: 999px;
+    background: var(--grad); color: #fff;
+    font-size: 16px; font-weight: 500;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s ease;
+  }
+  .btn-primary:active { opacity: .9; transform: scale(.98); }
+
+  /* ---------- 我的页 ---------- */
+  .profile-card { text-align: center; padding: 26px 20px; }
+  .avatar {
+    width: 68px; height: 68px; margin: 0 auto;
+    border-radius: 50%;
+    background: rgba(255,255,255,.2);
+    border: 2px solid rgba(255,255,255,.5);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 34px; font-weight: 700; color: #fff;
+  }
+  .profile-hero { background: var(--grad-hero); box-shadow: var(--shadow-hero); color: #fff; border-radius: var(--radius-lg); margin-top: 10px; padding: 26px 20px; text-align: center; }
+  .profile-names { display: block; margin-top: 12px; font-size: 21px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .profile-date { display: block; margin-top: 3px; font-size: 12px; color: rgba(255,255,255,.88); }
+  .countdown-chip {
+    display: inline-block; margin-top: 10px; padding: 5px 16px;
+    border-radius: 999px; background: rgba(255,255,255,.2);
+    font-size: 12px; color: #fff;
+  }
+  .form-row { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--divider); }
+  .form-row:last-child { border-bottom: none; }
+  .form-label { width: 84px; flex-shrink: 0; font-size: 14px; color: var(--text2); }
+  .form-input { flex: 1; min-width: 0; height: 34px; font-size: 14px; color: var(--text); text-align: right; background: transparent; }
+  input[type="date"].form-input { color: var(--text); }
+  .stats-grid { display: flex; flex-wrap: wrap; }
+  .mine-stat { width: 50%; text-align: center; padding: 12px 0; }
+  .mine-stat .stat-value { color: var(--primary); font-size: 19px; }
+  .mine-stat .stat-label { color: var(--text3); font-size: 12px; }
+  .menu-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 13px 0; border-bottom: 1px solid var(--divider);
+    font-size: 14px; cursor: pointer;
+  }
+  .menu-row:last-child { border-bottom: none; }
+  .menu-row:active { opacity: .7; }
+  .menu-row .arrow { color: var(--text4); }
+  .menu-row.danger { color: var(--error); }
+  .footer-tip { display: block; margin: 18px 0 8px; text-align: center; font-size: 12px; color: var(--text3); }
+
+  /* ---------- TabBar ---------- */
+  .tabbar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+    max-width: 560px; margin: 0 auto;
+    background: rgba(255,255,255,.96);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--divider);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .tab {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 8px 0 6px; color: #9A8A90; font-size: 11px;
+  }
+  .tab svg { width: 24px; height: 24px; }
+  .tab.active { color: var(--primary); font-weight: 500; }
+
+  /* ---------- 弹窗 ---------- */
+  .modal-mask {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(51,39,44,.45);
+    display: none; align-items: flex-end; justify-content: center;
+  }
+  .modal-mask.show { display: flex; animation: fadeIn .2s ease; }
+  .sheet {
+    width: 100%; max-width: 560px;
+    background: var(--card);
+    border-radius: 20px 20px 0 0;
+    padding: 12px 20px calc(28px + env(safe-area-inset-bottom));
+    max-height: 80vh; overflow-y: auto;
+    animation: slideUp .25s ease;
+  }
+  .sheet-handle { width: 36px; height: 4px; border-radius: 999px; background: var(--border); margin: 0 auto 12px; }
+  .sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .sheet-title { font-size: 17px; font-weight: 600; }
+  .sheet-close {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--input-bg); color: var(--text3);
+    display: flex; align-items: center; justify-content: center; font-size: 13px;
+  }
+  .f-label { display: block; font-size: 13px; color: var(--text2); font-weight: 500; margin: 14px 0 8px; }
+  .f-label:first-of-type { margin-top: 0; }
+  .f-input {
+    width: 100%; height: 44px; padding: 0 14px;
+    border-radius: 12px; background: var(--input-bg);
+    font-size: 14px; color: var(--text);
+  }
+  .f-input::placeholder { color: var(--text4); }
+  .form-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .row2 { display: flex; gap: 10px; }
+  .row2 > div { flex: 1; min-width: 0; }
+  .sheet .btn-primary { margin-top: 22px; }
+
+  /* ---------- Toast ---------- */
+  #toast {
+    position: fixed; left: 50%; bottom: 130px; transform: translateX(-50%);
+    background: rgba(51,39,44,.88); color: #fff;
+    font-size: 13px; padding: 9px 18px; border-radius: 999px;
+    z-index: 200; opacity: 0; pointer-events: none;
+    transition: opacity .25s ease; max-width: 80vw; text-align: center;
+  }
+  #toast.show { opacity: 1; }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <span class="topbar-title">备婚清单</span>
+    <span class="sync"><span class="sync-dot" id="sync-dot"></span><span id="sync-text">加载中…</span></span>
+  </div>
+
+  <main>
+    <!-- 清单 -->
+    <section id="view-list" class="view active">
+      <div id="list-hero"></div>
+      <div class="chips-scroll"><div class="chips-row" id="stage-filter"></div></div>
+      <div id="stage-list"></div>
+      <button class="fab" onclick="openAddTask()">+</button>
+    </section>
+
+    <!-- 预算 -->
+    <section id="view-budget" class="view">
+      <div id="budget-hero"></div>
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">分类预算</span>
+          <span class="card-tip">点击分类可调整预算</span>
+        </div>
+        <div id="cat-list"></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">支出明细</span>
+          <span class="card-tip" id="exp-count"></span>
+        </div>
+        <div id="exp-list"></div>
+      </div>
+      <div class="bottom-action"><button class="btn-primary" onclick="openAddExpense()">记一笔</button></div>
+    </section>
+
+    <!-- 我的 -->
+    <section id="view-mine" class="view">
+      <div id="mine-profile"></div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">新人信息</span><span class="card-tip">修改后自动同步</span></div>
+        <div class="form-row">
+          <span class="form-label">新郎昵称</span>
+          <input class="form-input" id="inp-groom" maxlength="12" placeholder="输入新郎昵称">
+        </div>
+        <div class="form-row">
+          <span class="form-label">新娘昵称</span>
+          <input class="form-input" id="inp-bride" maxlength="12" placeholder="输入新娘昵称">
+        </div>
+        <div class="form-row">
+          <span class="form-label">婚礼日期</span>
+          <input type="date" class="form-input" id="inp-date">
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">备婚数据</span></div>
+        <div class="stats-grid" id="mine-stats"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">数据管理</span></div>
+        <div class="menu-row" onclick="resetTasks()"><span>恢复默认清单</span><span class="arrow">›</span></div>
+        <div class="menu-row" onclick="resetExpenses()"><span>清空支出记录</span><span class="arrow">›</span></div>
+        <div class="menu-row danger" onclick="resetAll()"><span>重置全部数据</span><span class="arrow">›</span></div>
+      </div>
+      <span class="footer-tip">数据云端同步保存 · 愿有情人终成眷属</span>
+    </section>
+  </main>
+
+  <nav class="tabbar">
+    <button class="tab active" data-tab="list" onclick="switchTab('list')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4.5" width="14" height="16.5" rx="2.5"/><rect x="9" y="2.5" width="6" height="3.5" rx="1.2"/><path d="M8.5 13.2l2.4 2.4 4.6-4.8"/></svg>
+      清单
+    </button>
+    <button class="tab" data-tab="budget" onclick="switchTab('budget')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="M20.5 10.5h-3.2a2 2 0 0 0 0 4h3.2"/><path d="M7 9h6"/></svg>
+      预算
+    </button>
+    <button class="tab" data-tab="mine" onclick="switchTab('mine')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5S3.5 15.4 3.5 10C3.5 7.2 5.7 5 8.4 5c1.5 0 2.9.7 3.6 1.9C12.7 5.7 14.1 5 15.6 5c2.7 0 4.9 2.2 4.9 5 0 5.4-8.5 10.5-8.5 10.5z"/></svg>
+      我的
+    </button>
+  </nav>
+</div>
+
+<!-- 弹窗 -->
+<div class="modal-mask" id="modal-mask" onclick="if(event.target===this)closeModal()">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <span class="sheet-title" id="modal-title"></span>
+      <button class="sheet-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* ================= 基础数据 ================= */
+const STAGES = [
+  { id: 'stage1', name: '筹备启动', time: '婚前 12-6 个月' },
+  { id: 'stage2', name: '核心预订', time: '婚前 6-3 个月' },
+  { id: 'stage3', name: '细节落实', time: '婚前 3-1 个月' },
+  { id: 'stage4', name: '冲刺准备', time: '婚前 1 个月内' },
+  { id: 'stage5', name: '婚礼当天', time: '婚礼当日' },
+];
+const RAW_TASKS = [
+  ['stage1', '双方家长见面，商定婚事', '确定彩礼嫁妆等初步共识'],
+  ['stage1', '确定婚期与备选日期', '结合黄历、节假日与酒店档期'],
+  ['stage1', '草拟婚礼预算方案', '明确总预算与各项分配'],
+  ['stage1', '确定宾客初步名单', '预估桌数，方便预订酒店'],
+  ['stage1', '预订婚宴酒店', '对比场地、菜单、档期与押金'],
+  ['stage1', '选定婚庆策划公司', '沟通风格、套餐与四大金刚'],
+  ['stage1', '婚前体检', '预约婚检，领取婚检报告'],
+  ['stage2', '拍摄婚纱照', '提前选风格、定档期'],
+  ['stage2', '挑选婚纱礼服与西装', '主纱、出门纱、敬酒服与新郎西装'],
+  ['stage2', '预订司仪、跟妆、摄影摄像', '四大金刚尽早锁定档期'],
+  ['stage2', '选购或定制婚戒', '对戒与钻戒'],
+  ['stage2', '确定伴郎伴娘人选', '提前沟通服装与分工'],
+  ['stage2', '蜜月旅行初步规划', '目的地、签证与假期安排'],
+  ['stage3', '发送婚礼请柬', '纸质请柬或电子请柬'],
+  ['stage3', '确定婚宴菜单与桌数', '与酒店最终确认备桌'],
+  ['stage3', '采购喜糖、伴手礼', '按宾客人数预留余量'],
+  ['stage3', '购买婚品', '喜字、红包、床品、敬酒道具等'],
+  ['stage3', '预约美甲美睫与护肤', '婚前护理计划'],
+  ['stage3', '确定婚礼流程与音乐', '与司仪对接仪式环节'],
+  ['stage4', '婚礼彩排与流程走位', '与司仪、伴郎伴娘到场彩排'],
+  ['stage4', '最终确认宾客与座位表', '制作桌卡与签到表'],
+  ['stage4', '试穿婚鞋提前磨合', '避免婚礼当天磨脚'],
+  ['stage4', '准备婚礼当天应急包', '别针、创可贴、吸管、备用丝袜等'],
+  ['stage4', '与四大金刚最终对接', '确认时间、地点与流程细节'],
+  ['stage4', '准备致辞与誓言', '父母致辞、新人誓言'],
+  ['stage5', '吃好早餐保持体力', '婚礼当天行程很满'],
+  ['stage5', '检查红包与戒指', '交给专人保管'],
+  ['stage5', '应急包随身备用', '交给伴娘保管'],
+  ['stage5', '放松心情，享受婚礼', '今天你们是主角'],
+];
+function buildDefaultTasks() {
+  return RAW_TASKS.map((t, i) => ({ id: 'task_' + (i + 1), stageId: t[0], title: t[1], desc: t[2] || '', done: false }));
+}
+const CAT_COLORS = ['#E15B7E', '#D9A441', '#5B8DEF', '#3FBF7F', '#FF9F43', '#9B6DE3', '#4FB8C7', '#E77FA0', '#7BA05B', '#B08968'];
+function buildDefaultCategories() {
+  return [
+    { id: 'venue', name: '酒店婚宴', planned: 60000 },
+    { id: 'planner', name: '婚庆策划', planned: 25000 },
+    { id: 'photo', name: '婚纱摄影', planned: 8000 },
+    { id: 'dress', name: '婚纱礼服', planned: 15000 },
+    { id: 'jewelry', name: '戒指珠宝', planned: 20000 },
+    { id: 'beauty', name: '跟妆造型', planned: 5000 },
+    { id: 'shoot', name: '婚礼跟拍', planned: 8000 },
+    { id: 'flower', name: '鲜花布置', planned: 8000 },
+    { id: 'honeymoon', name: '蜜月旅行', planned: 15000 },
+    { id: 'other', name: '其他支出', planned: 6000 },
+  ];
+}
+function buildDefaultExpenses() {
+  const d = (days) => {
+    const t = new Date(Date.now() - days * 86400000);
+    return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0');
+  };
+  return [
+    { id: 'exp_1', categoryId: 'venue', title: '婚宴定金', amount: 20000, date: d(42) },
+    { id: 'exp_2', categoryId: 'photo', title: '婚纱照套餐定金', amount: 3000, date: d(28) },
+    { id: 'exp_3', categoryId: 'jewelry', title: '结婚对戒', amount: 9800, date: d(12) },
+    { id: 'exp_4', categoryId: 'dress', title: '出门纱租赁定金', amount: 1500, date: d(5) },
+  ];
+}
+const DEFAULT_DATA = {
+  profile: { groomName: '王少松', brideName: '夏梦颖', weddingDate: '2026-10-03' },
+  tasks: buildDefaultTasks(),
+  categories: buildDefaultCategories(),
+  expenses: buildDefaultExpenses(),
+};
+
+/* ================= GitHub 云同步 ================= */
+// 细粒度 Token：仅 wedding-checklist 仓库 Contents 读写（待配置）
+const GH_TOKEN = '';
+const GH_REPO = 'Mrwang19960102/wedding-checklist';
+const GH_FILE = 'data.json';
+
+let state = null;
+let fileSha = null;
+let saveTimer = null;
+
+function ghApi(method, body) {
+  return fetch('https://api.github.com/repos/' + GH_REPO + '/contents/' + GH_FILE, {
+    method: method,
+    headers: {
+      'Authorization': 'Bearer ' + GH_TOKEN,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json',
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+}
+function encodeB64(s) { return btoa(unescape(encodeURIComponent(s))); }
+function decodeB64(s) { return decodeURIComponent(escape(atob(s.replace(/\n/g, '')))); }
+function setSync(text, level) {
+  document.getElementById('sync-text').textContent = text;
+  const dot = document.getElementById('sync-dot');
+  dot.className = 'sync-dot' + (level ? ' ' + level : '');
+}
+function readLocal() {
+  try {
+    const raw = localStorage.getItem('wc_data');
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    console.error('[Local] 读取失败', e);
+    return null;
+  }
+}
+function writeLocal() {
+  try { localStorage.setItem('wc_data', JSON.stringify(state)); }
+  catch (e) { console.error('[Local] 写入失败', e); }
+}
+async function loadData() {
+  setSync(GH_TOKEN ? '同步中…' : '本地模式', GH_TOKEN ? 'warn' : '');
+  let cloud = null;
+  if (GH_TOKEN) {
+    try {
+      const r = await ghApi('GET');
+      if (r.status === 200) {
+        const d = await r.json();
+        fileSha = d.sha;
+        cloud = JSON.parse(decodeB64(d.content));
+      } else if (r.status !== 404) {
+        console.error('[Sync] GET 异常', r.status);
+      }
+    } catch (e) {
+      console.error('[Sync] GET 失败', e);
+    }
+  }
+  const local = readLocal();
+  const pending = localStorage.getItem('wc_pending') === '1';
+  if (pending && local) {
+    state = local;
+    renderAll();
+    cloudSave();
+    return;
+  }
+  if (cloud) { state = cloud; writeLocal(); }
+  else if (local) { state = local; }
+  else { state = JSON.parse(JSON.stringify(DEFAULT_DATA)); writeLocal(); }
+  renderAll();
+  if (GH_TOKEN) { setSync('云端已同步', ''); if (!cloud) cloudSave(); }
+  else setSync('本地模式', '');
+}
+async function cloudSave(retry) {
+  retry = retry || 0;
+  if (!GH_TOKEN) return;
+  setSync('同步中…', 'warn');
+  const body = {
+    message: 'update wedding data',
+    content: encodeB64(JSON.stringify(state)),
+    branch: 'main',
+  };
+  if (fileSha) body.sha = fileSha;
+  try {
+    const r = await ghApi('PUT', body);
+    if (r.status === 200 || r.status === 201) {
+      const d = await r.json();
+      fileSha = d.content.sha;
+      localStorage.removeItem('wc_pending');
+      setSync('云端已同步', '');
+    } else if (r.status === 409 && retry < 2) {
+      const g = await ghApi('GET');
+      if (g.status === 200) { fileSha = (await g.json()).sha; }
+      cloudSave(retry + 1);
+    } else {
+      console.error('[Sync] PUT 失败', r.status);
+      localStorage.setItem('wc_pending', '1');
+      setSync('离线·本地暂存', 'err');
+    }
+  } catch (e) {
+    console.error('[Sync] PUT 异常', e);
+    localStorage.setItem('wc_pending', '1');
+    setSync('离线·本地暂存', 'err');
+  }
+}
+function mutate() {
+  writeLocal();
+  renderAll();
+  if (!GH_TOKEN) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(cloudSave, 600);
+}
+
+/* ================= 工具函数 ================= */
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+}
+function fmtMoney(n) {
+  n = Number.isFinite(n) ? n : 0;
+  return '¥' + n.toLocaleString('zh-CN', { maximumFractionDigits: 2 });
+}
+function fmtDateCN(ds) {
+  const p = ds.split('-');
+  return p[0] + '年' + parseInt(p[1], 10) + '月' + parseInt(p[2], 10) + '日';
+}
+function todayStr() {
+  const t = new Date();
+  return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0');
+}
+function daysUntil(ds) {
+  const p = ds.split('-').map(Number);
+  const target = new Date(p[0], p[1] - 1, p[2]);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.round((target - today) / 86400000);
+}
+function catColor(id) {
+  const i = state.categories.findIndex(c => c.id === id);
+  return CAT_COLORS[(i < 0 ? 0 : i) % CAT_COLORS.length];
+}
+function catName(id) {
+  const c = state.categories.find(c2 => c2.id === id);
+  return c ? c.name : '未分类';
+}
+let toastTimer = null;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+/* ================= 渲染 ================= */
+let activeStage = 'all';
+
+function renderAll() {
+  renderListHero();
+  renderStageFilter();
+  renderStageList();
+  renderBudgetHero();
+  renderCatList();
+  renderExpList();
+  renderMine();
+}
+
+function renderListHero() {
+  const total = state.tasks.length;
+  const done = state.tasks.filter(t => t.done).length;
+  const percent = total > 0 ? Math.round(done / total * 100) : 0;
+  const days = daysUntil(state.profile.weddingDate);
+  document.getElementById('list-hero').innerHTML =
+    '<div class="hero">' +
+      '<div class="hero-top">' +
+        '<div style="flex:1;min-width:0">' +
+          '<div class="hero-names">' + esc(state.profile.groomName) + ' & ' + esc(state.profile.brideName) + '</div>' +
+          '<div class="hero-date">' + fmtDateCN(state.profile.weddingDate) + ' 婚礼</div>' +
+        '</div>' +
+        '<div class="countdown-badge">' +
+          '<span class="countdown-num">' + (days >= 0 ? days : '囍') + '</span>' +
+          '<span class="countdown-label">' + (days >= 0 ? '天后婚礼' : '已完婚') + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="hero-divider"></div>' +
+      '<div class="hero-progress-info"><span>备婚进度</span><span>' + done + '/' + total + ' 项 · ' + percent + '%</span></div>' +
+      '<div class="track white" style="height:7px"><div class="bar" style="width:' + percent + '%"></div></div>' +
+    '</div>';
+}
+
+function renderStageFilter() {
+  let html = '<button class="chip' + (activeStage === 'all' ? ' active' : '') + '" onclick="setStageFilter(\'all\')">全部</button>';
+  STAGES.forEach(s => {
+    html += '<button class="chip' + (activeStage === s.id ? ' active' : '') + '" onclick="setStageFilter(\'' + s.id + '\')">' + s.name + '</button>';
+  });
+  document.getElementById('stage-filter').innerHTML = html;
+}
+function setStageFilter(id) {
+  activeStage = id;
+  renderStageFilter();
+  renderStageList();
+}
+
+function renderStageList() {
+  const stages = activeStage === 'all' ? STAGES : STAGES.filter(s => s.id === activeStage);
+  let html = '';
+  stages.forEach(s => {
+    const tasks = state.tasks.filter(t => t.stageId === s.id);
+    const done = tasks.filter(t => t.done).length;
+    const percent = tasks.length > 0 ? Math.round(done / tasks.length * 100) : 0;
+    html += '<div class="card">' +
+      '<div class="stage-head">' +
+        '<div class="stage-title-wrap"><span class="stage-dot"></span><span class="stage-name">' + s.name + '</span><span class="stage-time">' + s.time + '</span></div>' +
+        '<span class="stage-count">' + done + '/' + tasks.length + '</span>' +
+      '</div>' +
+      '<div class="track" style="height:4px"><div class="bar" style="width:' + percent + '%"></div></div>' +
+      '<div class="task-list">';
+    if (tasks.length === 0) {
+      html += '<span class="empty-tip">暂无事项，点击右下角「+」添加</span>';
+    } else {
+      tasks.forEach(t => {
+        html += '<div class="task' + (t.done ? ' done' : '') + '">' +
+          '<div class="checkbox' + (t.done ? ' done' : '') + '" onclick="toggleTask(\'' + t.id + '\')">✓</div>' +
+          '<div class="task-content" onclick="toggleTask(\'' + t.id + '\')">' +
+            '<div class="task-title-row"><span class="task-title">' + esc(t.title) + '</span>' + (t.custom ? '<span class="custom-tag">自定义</span>' : '') + '</div>' +
+            (t.desc ? '<span class="task-desc">' + esc(t.desc) + '</span>' : '') +
+          '</div>' +
+          '<div class="task-del" onclick="deleteTask(\'' + t.id + '\')">✕</div>' +
+        '</div>';
+      });
+    }
+    html += '</div></div>';
+  });
+  document.getElementById('stage-list').innerHTML = html;
+}
+
+function toggleTask(id) {
+  const t = state.tasks.find(x => x.id === id);
+  if (!t) return;
+  t.done = !t.done;
+  if (t.done && state.tasks.every(x => x.done)) showToast('备婚事项全部完成，新婚快乐');
+  mutate();
+}
+function deleteTask(id) {
+  if (!confirm('确定要删除这条备婚事项吗？')) return;
+  state.tasks = state.tasks.filter(t => t.id !== id);
+  mutate();
+  showToast('已删除');
+}
+
+function renderBudgetHero() {
+  const totalBudget = state.categories.reduce((s, c) => s + c.planned, 0);
+  const totalSpent = state.expenses.reduce((s, e) => s + e.amount, 0);
+  const remaining = totalBudget - totalSpent;
+  const percent = totalBudget > 0 ? Math.min(Math.round(totalSpent / totalBudget * 100), 100) : 0;
+  const over = totalSpent > totalBudget;
+  document.getElementById('budget-hero').innerHTML =
+    '<div class="hero">' +
+      '<div class="hero-stats">' +
+        '<div class="stat-item"><span class="stat-value">' + fmtMoney(totalBudget) + '</span><span class="stat-label">总预算</span></div>' +
+        '<div class="stat-item"><span class="stat-value">' + fmtMoney(totalSpent) + '</span><span class="stat-label">已花费</span></div>' +
+        '<div class="stat-item"><span class="stat-value">' + fmtMoney(remaining) + '</span><span class="stat-label">' + (remaining >= 0 ? '剩余可用' : '已超支') + '</span></div>' +
+      '</div>' +
+      '<div class="hero-divider"></div>' +
+      '<div class="hero-progress-info"><span>预算使用率</span><span>' + (totalBudget > 0 ? Math.round(totalSpent / totalBudget * 100) : 0) + '%</span></div>' +
+      '<div class="track white" style="height:7px"><div class="bar' + (over ? ' danger' : '') + '" style="width:' + percent + '%"></div></div>' +
+    '</div>';
+}
+
+function renderCatList() {
+  const spentMap = {};
+  state.expenses.forEach(e => { spentMap[e.categoryId] = (spentMap[e.categoryId] || 0) + e.amount; });
+  let html = '';
+  state.categories.forEach(c => {
+    const spent = spentMap[c.id] || 0;
+    const over = spent > c.planned;
+    const percent = c.planned > 0 ? Math.min(spent / c.planned * 100, 100) : (spent > 0 ? 100 : 0);
+    html += '<div class="cat-row" onclick="openEditBudget(\'' + c.id + '\')">' +
+      '<div class="cat-icon" style="background:' + catColor(c.id) + '">' + esc(c.name.slice(0, 1)) + '</div>' +
+      '<div class="cat-info">' +
+        '<div class="cat-name-row">' +
+          '<span class="cat-name">' + esc(c.name) + '</span>' +
+          '<span class="cat-amounts' + (over ? ' over' : '') + '"><b>' + fmtMoney(spent) + '</b> / ' + fmtMoney(c.planned) + '</span>' +
+          (over ? '<span class="over-tag">超支</span>' : '') +
+        '</div>' +
+        '<div class="cat-bar"><div class="track" style="height:4px"><div class="bar' + (over ? ' danger' : '') + '" style="width:' + percent + '%"></div></div></div>' +
+      '</div>' +
+    '</div>';
+  });
+  document.getElementById('cat-list').innerHTML = html;
+}
+
+function renderExpList() {
+  const sorted = [...state.expenses].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+  document.getElementById('exp-count').textContent = '共 ' + state.expenses.length + ' 笔';
+  if (sorted.length === 0) {
+    document.getElementById('exp-list').innerHTML = '<span class="empty-tip">暂无支出记录，点击下方按钮记一笔</span>';
+    return;
+  }
+  let html = '';
+  sorted.forEach(e => {
+    const color = catColor(e.categoryId);
+    html += '<div class="exp-row">' +
+      '<div class="exp-info">' +
+        '<div class="exp-title-row"><span class="exp-title">' + esc(e.title) + '</span>' +
+        '<span class="exp-cat-tag" style="color:' + color + ';background:' + color + '1A">' + esc(catName(e.categoryId)) + '</span></div>' +
+        '<span class="exp-date">' + fmtDateCN(e.date) + '</span>' +
+      '</div>' +
+      '<span class="exp-amount">-' + fmtMoney(e.amount) + '</span>' +
+      '<div class="exp-del" onclick="deleteExpense(\'' + e.id + '\')">✕</div>' +
+    '</div>';
+  });
+  document.getElementById('exp-list').innerHTML = html;
+}
+
+function deleteExpense(id) {
+  if (!confirm('确定要删除这条支出记录吗？')) return;
+  state.expenses = state.expenses.filter(e => e.id !== id);
+  mutate();
+  showToast('已删除');
+}
+
+function renderMine() {
+  const days = daysUntil(state.profile.weddingDate);
+  document.getElementById('mine-profile').innerHTML =
+    '<div class="profile-hero">' +
+      '<div class="avatar">囍</div>' +
+      '<span class="profile-names">' + esc(state.profile.groomName) + ' & ' + esc(state.profile.brideName) + '</span>' +
+      '<span class="profile-date">' + fmtDateCN(state.profile.weddingDate) + ' 婚礼</span>' +
+      '<span class="countdown-chip">' + (days >= 0 ? '距离婚礼还有 ' + days + ' 天' : '已完婚，祝百年好合') + '</span>' +
+    '</div>';
+  const groom = document.getElementById('inp-groom');
+  const bride = document.getElementById('inp-bride');
+  const date = document.getElementById('inp-date');
+  if (document.activeElement !== groom) groom.value = state.profile.groomName;
+  if (document.activeElement !== bride) bride.value = state.profile.brideName;
+  if (document.activeElement !== date) date.value = state.profile.weddingDate;
+  const done = state.tasks.filter(t => t.done).length;
+  const totalSpent = state.expenses.reduce((s, e) => s + e.amount, 0);
+  document.getElementById('mine-stats').innerHTML =
+    '<div class="mine-stat"><span class="stat-value">' + state.tasks.length + '</span><span class="stat-label">事项总数</span></div>' +
+    '<div class="mine-stat"><span class="stat-value">' + done + '</span><span class="stat-label">已完成事项</span></div>' +
+    '<div class="mine-stat"><span class="stat-value">' + state.expenses.length + '</span><span class="stat-label">支出笔数</span></div>' +
+    '<div class="mine-stat"><span class="stat-value">' + fmtMoney(totalSpent) + '</span><span class="stat-label">累计花费</span></div>';
+}
+
+/* ================= 弹窗 ================= */
+let modalStage = 'stage1';
+let modalCat = '';
+let editBudgetCatId = '';
+
+function openModal(title, bodyHtml) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = bodyHtml;
+  document.getElementById('modal-mask').classList.add('show');
+}
+function closeModal() {
+  document.getElementById('modal-mask').classList.remove('show');
+}
+
+function openAddTask() {
+  modalStage = activeStage === 'all' ? 'stage1' : activeStage;
+  let chips = '';
+  STAGES.forEach(s => {
+    chips += '<button class="chip form' + (s.id === modalStage ? ' active' : '') + '" data-stage="' + s.id + '" onclick="pickModalStage(\'' + s.id + '\')">' + s.name + '</button>';
+  });
+  openModal('添加备婚事项',
+    '<label class="f-label">事项内容</label>' +
+    '<input class="f-input" id="nt-title" maxlength="30" placeholder="例如：预定婚礼蛋糕">' +
+    '<label class="f-label">所属阶段</label>' +
+    '<div class="form-chips" id="nt-stages">' + chips + '</div>' +
+    '<button class="btn-primary" onclick="submitNewTask()">确认添加</button>');
+  setTimeout(() => document.getElementById('nt-title').focus(), 300);
+}
+function pickModalStage(id) {
+  modalStage = id;
+  document.querySelectorAll('#nt-stages .chip').forEach(el => {
+    el.classList.toggle('active', el.dataset.stage === id);
+  });
+}
+function submitNewTask() {
+  const title = document.getElementById('nt-title').value.trim();
+  if (!title) { showToast('请输入事项内容'); return; }
+  state.tasks.push({ id: 'custom_' + Date.now(), stageId: modalStage, title: title, desc: '', done: false, custom: true });
+  activeStage = modalStage;
+  closeModal();
+  mutate();
+  showToast('已添加');
+}
+
+function openAddExpense() {
+  modalCat = state.categories.length > 0 ? state.categories[0].id : '';
+  let chips = '';
+  state.categories.forEach(c => {
+    chips += '<button class="chip form' + (c.id === modalCat ? ' active' : '') + '" data-cat="' + c.id + '" onclick="pickModalCat(\'' + c.id + '\')">' + esc(c.name) + '</button>';
+  });
+  openModal('记一笔支出',
+    '<label class="f-label">支出项目</label>' +
+    '<input class="f-input" id="ne-title" maxlength="20" placeholder="例如：婚宴尾款">' +
+    '<div class="row2">' +
+      '<div><label class="f-label">金额（元）</label><input class="f-input" id="ne-amount" type="number" inputmode="decimal" min="0" placeholder="0.00"></div>' +
+      '<div><label class="f-label">日期</label><input class="f-input" id="ne-date" type="date" value="' + todayStr() + '"></div>' +
+    '</div>' +
+    '<label class="f-label">支出分类</label>' +
+    '<div class="form-chips" id="ne-cats">' + chips + '</div>' +
+    '<button class="btn-primary" onclick="submitNewExpense()">保存记录</button>');
+  setTimeout(() => document.getElementById('ne-title').focus(), 300);
+}
+function pickModalCat(id) {
+  modalCat = id;
+  document.querySelectorAll('#ne-cats .chip').forEach(el => {
+    el.classList.toggle('active', el.dataset.cat === id);
+  });
+}
+function submitNewExpense() {
+  const title = document.getElementById('ne-title').value.trim();
+  const amount = parseFloat(document.getElementById('ne-amount').value);
+  const date = document.getElementById('ne-date').value || todayStr();
+  if (!title) { showToast('请输入支出项目'); return; }
+  if (!Number.isFinite(amount) || amount <= 0) { showToast('请输入正确的金额'); return; }
+  state.expenses.push({ id: 'exp_' + Date.now(), categoryId: modalCat, title: title, amount: Math.round(amount * 100) / 100, date: date });
+  closeModal();
+  mutate();
+  showToast('已记账');
+}
+
+function openEditBudget(id) {
+  const cat = state.categories.find(c => c.id === id);
+  if (!cat) return;
+  editBudgetCatId = id;
+  openModal('调整「' + cat.name + '」预算',
+    '<label class="f-label">预算金额（元）</label>' +
+    '<input class="f-input" id="eb-amount" type="number" inputmode="decimal" min="0" value="' + cat.planned + '">' +
+    '<button class="btn-primary" onclick="submitEditBudget()">确认调整</button>');
+  setTimeout(() => { const el = document.getElementById('eb-amount'); el.focus(); el.select && el.select(); }, 300);
+}
+function submitEditBudget() {
+  const planned = parseFloat(document.getElementById('eb-amount').value);
+  if (!Number.isFinite(planned) || planned < 0) { showToast('请输入正确的预算金额'); return; }
+  const cat = state.categories.find(c => c.id === editBudgetCatId);
+  if (cat) cat.planned = Math.round(planned * 100) / 100;
+  closeModal();
+  mutate();
+  showToast('已更新预算');
+}
+
+/* ================= 我的页 ================= */
+function resetTasks() {
+  if (!confirm('将恢复为系统预置的 29 项备婚清单，自定义事项与勾选状态会丢失。确定吗？')) return;
+  state.tasks = buildDefaultTasks();
+  mutate();
+  showToast('已恢复默认清单');
+}
+function resetExpenses() {
+  if (!confirm('将删除全部支出记录，分类预算保留。确定吗？')) return;
+  state.expenses = [];
+  mutate();
+  showToast('已清空支出记录');
+}
+function resetAll() {
+  if (!confirm('将恢复所有数据到初始状态（新人信息、清单与预算），此操作不可撤销。确定吗？')) return;
+  state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  mutate();
+  showToast('已重置全部数据');
+}
+
+/* ================= Tab 切换 ================= */
+function switchTab(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  window.scrollTo(0, 0);
+}
+
+/* ================= 初始化 ================= */
+document.getElementById('inp-groom').addEventListener('input', e => { state.profile.groomName = e.target.value; mutate(); });
+document.getElementById('inp-bride').addEventListener('input', e => { state.profile.brideName = e.target.value; mutate(); });
+document.getElementById('inp-date').addEventListener('change', e => {
+  if (e.target.value) { state.profile.weddingDate = e.target.value; mutate(); }
+});
+
+loadData();
+</script>
+</body>
+</html>
