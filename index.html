@@ -180,6 +180,12 @@
     color: var(--text4); font-size: 13px; cursor: pointer;
   }
   .task-del:active { opacity: .6; }
+  .task-edit {
+    flex-shrink: 0; width: 26px; height: 26px; margin-left: 4px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text3); font-size: 13px; cursor: pointer;
+  }
+  .task-edit:active { opacity: .6; }
   .empty-tip { display: block; text-align: center; font-size: 13px; color: var(--text3); padding: 18px 0; }
 
   /* ---------- FAB ---------- */
@@ -233,6 +239,12 @@
     color: var(--text4); font-size: 13px; cursor: pointer;
   }
   .exp-del:active { opacity: .6; }
+  .exp-edit {
+    flex-shrink: 0; width: 26px; height: 26px; margin-left: 4px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text3); font-size: 13px; cursor: pointer;
+  }
+  .exp-edit:active { opacity: .6; }
 
   /* ---------- 底部记账按钮 ---------- */
   .bottom-action {
@@ -844,6 +856,7 @@ function renderStageList() {
             '<div class="task-title-row"><span class="task-title">' + esc(t.title) + '</span>' + (t.custom ? '<span class="custom-tag">自定义</span>' : '') + '</div>' +
             (t.desc ? '<span class="task-desc">' + esc(t.desc) + '</span>' : '') +
           '</div>' +
+          '<div class="task-edit" onclick="openEditTask(\'' + t.id + '\')">✎</div>' +
           '<div class="task-del" onclick="deleteTask(\'' + t.id + '\')">✕</div>' +
         '</div>';
       });
@@ -926,6 +939,7 @@ function renderExpList() {
         '<span class="exp-date">' + fmtDateCN(e.date) + '</span>' +
       '</div>' +
       '<span class="exp-amount">-' + fmtMoney(e.amount) + '</span>' +
+      '<div class="exp-edit" onclick="openEditExpense(\'' + e.id + '\')">✎</div>' +
       '<div class="exp-del" onclick="deleteExpense(\'' + e.id + '\')">✕</div>' +
     '</div>';
   });
@@ -967,6 +981,8 @@ function renderMine() {
 let modalStage = 'stage2';
 let modalCat = '';
 let editBudgetCatId = '';
+let editTaskId = '';
+let editExpenseId = '';
 
 function openModal(title, bodyHtml) {
   document.getElementById('modal-title').textContent = title;
@@ -978,17 +994,25 @@ function closeModal() {
 }
 
 function openAddTask() {
-  modalStage = activeStage === 'all' ? 'stage2' : activeStage;
+  openTaskForm(null);
+}
+function openEditTask(id) {
+  const t = state.tasks.find(x => x.id === id);
+  if (t) openTaskForm(t);
+}
+function openTaskForm(t) {
+  editTaskId = t ? t.id : '';
+  modalStage = t ? t.stageId : (activeStage === 'all' ? 'stage2' : activeStage);
   let chips = '';
   STAGES.forEach(s => {
     chips += '<button class="chip form' + (s.id === modalStage ? ' active' : '') + '" data-stage="' + s.id + '" onclick="pickModalStage(\'' + s.id + '\')">' + s.name + '</button>';
   });
-  openModal('添加备婚事项',
+  openModal(t ? '修改备婚事项' : '添加备婚事项',
     '<label class="f-label">事项内容</label>' +
-    '<input class="f-input" id="nt-title" maxlength="30" placeholder="例如：预定婚礼蛋糕">' +
+    '<input class="f-input" id="nt-title" maxlength="30" placeholder="例如：预定婚礼蛋糕" value="' + (t ? esc(t.title) : '') + '">' +
     '<label class="f-label">所属阶段</label>' +
     '<div class="form-chips" id="nt-stages">' + chips + '</div>' +
-    '<button class="btn-primary" onclick="submitNewTask()">确认添加</button>');
+    '<button class="btn-primary" onclick="submitNewTask()">' + (t ? '保存修改' : '确认添加') + '</button>');
   setTimeout(() => document.getElementById('nt-title').focus(), 300);
 }
 function pickModalStage(id) {
@@ -1000,29 +1024,45 @@ function pickModalStage(id) {
 function submitNewTask() {
   const title = document.getElementById('nt-title').value.trim();
   if (!title) { showToast('请输入事项内容'); return; }
-  state.tasks.push({ id: 'custom_' + Date.now(), stageId: modalStage, title: title, desc: '', done: false, custom: true });
-  activeStage = modalStage;
-  closeModal();
-  mutate();
-  showToast('已添加');
+  if (editTaskId) {
+    const t = state.tasks.find(x => x.id === editTaskId);
+    if (t) { t.title = title; t.stageId = modalStage; }
+    closeModal();
+    mutate();
+    showToast('已修改');
+  } else {
+    state.tasks.push({ id: 'custom_' + Date.now(), stageId: modalStage, title: title, desc: '', done: false, custom: true });
+    activeStage = modalStage;
+    closeModal();
+    mutate();
+    showToast('已添加');
+  }
 }
 
 function openAddExpense() {
-  modalCat = state.categories.length > 0 ? state.categories[0].id : '';
+  openExpenseForm(null);
+}
+function openEditExpense(id) {
+  const e = state.expenses.find(x => x.id === id);
+  if (e) openExpenseForm(e);
+}
+function openExpenseForm(e) {
+  editExpenseId = e ? e.id : '';
+  modalCat = e ? e.categoryId : (state.categories.length > 0 ? state.categories[0].id : '');
   let chips = '';
   state.categories.forEach(c => {
     chips += '<button class="chip form' + (c.id === modalCat ? ' active' : '') + '" data-cat="' + c.id + '" onclick="pickModalCat(\'' + c.id + '\')">' + esc(c.name) + '</button>';
   });
-  openModal('记一笔支出',
+  openModal(e ? '修改支出记录' : '记一笔支出',
     '<label class="f-label">支出项目</label>' +
-    '<input class="f-input" id="ne-title" maxlength="20" placeholder="例如：婚宴尾款">' +
+    '<input class="f-input" id="ne-title" maxlength="20" placeholder="例如：婚宴尾款" value="' + (e ? esc(e.title) : '') + '">' +
     '<div class="row2">' +
-      '<div><label class="f-label">金额（元）</label><input class="f-input" id="ne-amount" type="number" inputmode="decimal" min="0" placeholder="0.00"></div>' +
-      '<div><label class="f-label">日期</label><input class="f-input" id="ne-date" type="date" value="' + todayStr() + '"></div>' +
+      '<div><label class="f-label">金额（元）</label><input class="f-input" id="ne-amount" type="number" inputmode="decimal" min="0" placeholder="0.00" value="' + (e ? e.amount : '') + '"></div>' +
+      '<div><label class="f-label">日期</label><input class="f-input" id="ne-date" type="date" value="' + (e ? e.date : todayStr()) + '"></div>' +
     '</div>' +
     '<label class="f-label">支出分类</label>' +
     '<div class="form-chips" id="ne-cats">' + chips + '</div>' +
-    '<button class="btn-primary" onclick="submitNewExpense()">保存记录</button>');
+    '<button class="btn-primary" onclick="submitNewExpense()">' + (e ? '保存修改' : '保存记录') + '</button>');
   setTimeout(() => document.getElementById('ne-title').focus(), 300);
 }
 function pickModalCat(id) {
@@ -1037,10 +1077,23 @@ function submitNewExpense() {
   const date = document.getElementById('ne-date').value || todayStr();
   if (!title) { showToast('请输入支出项目'); return; }
   if (!Number.isFinite(amount) || amount <= 0) { showToast('请输入正确的金额'); return; }
-  state.expenses.push({ id: 'exp_' + Date.now(), categoryId: modalCat, title: title, amount: Math.round(amount * 100) / 100, date: date });
-  closeModal();
-  mutate();
-  showToast('已记账');
+  if (editExpenseId) {
+    const e = state.expenses.find(x => x.id === editExpenseId);
+    if (e) {
+      e.title = title;
+      e.amount = Math.round(amount * 100) / 100;
+      e.date = date;
+      e.categoryId = modalCat;
+    }
+    closeModal();
+    mutate();
+    showToast('已修改');
+  } else {
+    state.expenses.push({ id: 'exp_' + Date.now(), categoryId: modalCat, title: title, amount: Math.round(amount * 100) / 100, date: date });
+    closeModal();
+    mutate();
+    showToast('已记账');
+  }
 }
 
 function openEditBudget(id) {
