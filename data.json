@@ -1,13 +1,6 @@
 {
   "profile": { "groomName": "王少松", "brideName": "夏梦颖", "weddingDate": "2026-10-03" },
   "tasks": [
-    { "id": "task_1", "stageId": "stage1", "title": "双方家长见面，商定婚事", "desc": "确定彩礼嫁妆等初步共识", "done": false },
-    { "id": "task_2", "stageId": "stage1", "title": "确定婚期与备选日期", "desc": "结合黄历、节假日与酒店档期", "done": false },
-    { "id": "task_3", "stageId": "stage1", "title": "草拟婚礼预算方案", "desc": "明确总预算与各项分配", "done": false },
-    { "id": "task_4", "stageId": "stage1", "title": "确定宾客初步名单", "desc": "预估桌数，方便预订酒店", "done": false },
-    { "id": "task_5", "stageId": "stage1", "title": "预订婚宴酒店", "desc": "对比场地、菜单、档期与押金", "done": false },
-    { "id": "task_6", "stageId": "stage1", "title": "选定婚庆策划公司", "desc": "沟通风格、套餐与四大金刚", "done": false },
-    { "id": "task_7", "stageId": "stage1", "title": "婚前体检", "desc": "预约婚检，领取婚检报告", "done": false },
     { "id": "task_8", "stageId": "stage2", "title": "拍摄婚纱照", "desc": "提前选风格、定档期", "done": false },
     { "id": "task_9", "stageId": "stage2", "title": "挑选婚纱礼服与西装", "desc": "主纱、出门纱、敬酒服与新郎西装", "done": false },
     { "id": "task_10", "stageId": "stage2", "title": "预订司仪、跟妆、摄影摄像", "desc": "四大金刚尽早锁定档期", "done": false },
