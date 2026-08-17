@@ -1,0 +1,9 @@
+{
+  "name": "备婚清单 · 王少松 & 夏梦颖",
+  "short_name": "备婚清单",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#FBF5F6",
+  "theme_color": "#E15B7E",
+  "icons": [{ "src": "icon.png", "sizes": "512x512", "type": "image/png" }]
+}
