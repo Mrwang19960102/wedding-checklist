@@ -1,0 +1,52 @@
+{
+  "profile": { "groomName": "王少松", "brideName": "夏梦颖", "weddingDate": "2026-10-03" },
+  "tasks": [
+    { "id": "task_1", "stageId": "stage1", "title": "双方家长见面，商定婚事", "desc": "确定彩礼嫁妆等初步共识", "done": false },
+    { "id": "task_2", "stageId": "stage1", "title": "确定婚期与备选日期", "desc": "结合黄历、节假日与酒店档期", "done": false },
+    { "id": "task_3", "stageId": "stage1", "title": "草拟婚礼预算方案", "desc": "明确总预算与各项分配", "done": false },
+    { "id": "task_4", "stageId": "stage1", "title": "确定宾客初步名单", "desc": "预估桌数，方便预订酒店", "done": false },
+    { "id": "task_5", "stageId": "stage1", "title": "预订婚宴酒店", "desc": "对比场地、菜单、档期与押金", "done": false },
+    { "id": "task_6", "stageId": "stage1", "title": "选定婚庆策划公司", "desc": "沟通风格、套餐与四大金刚", "done": false },
+    { "id": "task_7", "stageId": "stage1", "title": "婚前体检", "desc": "预约婚检，领取婚检报告", "done": false },
+    { "id": "task_8", "stageId": "stage2", "title": "拍摄婚纱照", "desc": "提前选风格、定档期", "done": false },
+    { "id": "task_9", "stageId": "stage2", "title": "挑选婚纱礼服与西装", "desc": "主纱、出门纱、敬酒服与新郎西装", "done": false },
+    { "id": "task_10", "stageId": "stage2", "title": "预订司仪、跟妆、摄影摄像", "desc": "四大金刚尽早锁定档期", "done": false },
+    { "id": "task_11", "stageId": "stage2", "title": "选购或定制婚戒", "desc": "对戒与钻戒", "done": false },
+    { "id": "task_12", "stageId": "stage2", "title": "确定伴郎伴娘人选", "desc": "提前沟通服装与分工", "done": false },
+    { "id": "task_13", "stageId": "stage2", "title": "蜜月旅行初步规划", "desc": "目的地、签证与假期安排", "done": false },
+    { "id": "task_14", "stageId": "stage3", "title": "发送婚礼请柬", "desc": "纸质请柬或电子请柬", "done": false },
+    { "id": "task_15", "stageId": "stage3", "title": "确定婚宴菜单与桌数", "desc": "与酒店最终确认备桌", "done": false },
+    { "id": "task_16", "stageId": "stage3", "title": "采购喜糖、伴手礼", "desc": "按宾客人数预留余量", "done": false },
+    { "id": "task_17", "stageId": "stage3", "title": "购买婚品", "desc": "喜字、红包、床品、敬酒道具等", "done": false },
+    { "id": "task_18", "stageId": "stage3", "title": "预约美甲美睫与护肤", "desc": "婚前护理计划", "done": false },
+    { "id": "task_19", "stageId": "stage3", "title": "确定婚礼流程与音乐", "desc": "与司仪对接仪式环节", "done": false },
+    { "id": "task_20", "stageId": "stage4", "title": "婚礼彩排与流程走位", "desc": "与司仪、伴郎伴娘到场彩排", "done": false },
+    { "id": "task_21", "stageId": "stage4", "title": "最终确认宾客与座位表", "desc": "制作桌卡与签到表", "done": false },
+    { "id": "task_22", "stageId": "stage4", "title": "试穿婚鞋提前磨合", "desc": "避免婚礼当天磨脚", "done": false },
+    { "id": "task_23", "stageId": "stage4", "title": "准备婚礼当天应急包", "desc": "别针、创可贴、吸管、备用丝袜等", "done": false },
+    { "id": "task_24", "stageId": "stage4", "title": "与四大金刚最终对接", "desc": "确认时间、地点与流程细节", "done": false },
+    { "id": "task_25", "stageId": "stage4", "title": "准备致辞与誓言", "desc": "父母致辞、新人誓言", "done": false },
+    { "id": "task_26", "stageId": "stage5", "title": "吃好早餐保持体力", "desc": "婚礼当天行程很满", "done": false },
+    { "id": "task_27", "stageId": "stage5", "title": "检查红包与戒指", "desc": "交给专人保管", "done": false },
+    { "id": "task_28", "stageId": "stage5", "title": "应急包随身备用", "desc": "交给伴娘保管", "done": false },
+    { "id": "task_29", "stageId": "stage5", "title": "放松心情，享受婚礼", "desc": "今天你们是主角", "done": false }
+  ],
+  "categories": [
+    { "id": "venue", "name": "酒店婚宴", "planned": 60000 },
+    { "id": "planner", "name": "婚庆策划", "planned": 25000 },
+    { "id": "photo", "name": "婚纱摄影", "planned": 8000 },
+    { "id": "dress", "name": "婚纱礼服", "planned": 15000 },
+    { "id": "jewelry", "name": "戒指珠宝", "planned": 20000 },
+    { "id": "beauty", "name": "跟妆造型", "planned": 5000 },
+    { "id": "shoot", "name": "婚礼跟拍", "planned": 8000 },
+    { "id": "flower", "name": "鲜花布置", "planned": 8000 },
+    { "id": "honeymoon", "name": "蜜月旅行", "planned": 15000 },
+    { "id": "other", "name": "其他支出", "planned": 6000 }
+  ],
+  "expenses": [
+    { "id": "exp_1", "categoryId": "venue", "title": "婚宴定金", "amount": 20000, "date": "2026-07-06" },
+    { "id": "exp_2", "categoryId": "photo", "title": "婚纱照套餐定金", "amount": 3000, "date": "2026-07-20" },
+    { "id": "exp_3", "categoryId": "jewelry", "title": "结婚对戒", "amount": 9800, "date": "2026-08-05" },
+    { "id": "exp_4", "categoryId": "dress", "title": "出门纱租赁定金", "amount": 1500, "date": "2026-08-12" }
+  ]
+}
