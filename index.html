@@ -1010,6 +1010,8 @@ function openTaskForm(t) {
   openModal(t ? '修改备婚事项' : '添加备婚事项',
     '<label class="f-label">事项内容</label>' +
     '<input class="f-input" id="nt-title" maxlength="30" placeholder="例如：预定婚礼蛋糕" value="' + (t ? esc(t.title) : '') + '">' +
+    '<label class="f-label">备注（可选）</label>' +
+    '<input class="f-input" id="nt-desc" maxlength="60" placeholder="补充备注信息，如价格、联系方式等" value="' + (t ? esc(t.desc) : '') + '">' +
     '<label class="f-label">所属阶段</label>' +
     '<div class="form-chips" id="nt-stages">' + chips + '</div>' +
     '<button class="btn-primary" onclick="submitNewTask()">' + (t ? '保存修改' : '确认添加') + '</button>');
@@ -1023,15 +1025,16 @@ function pickModalStage(id) {
 }
 function submitNewTask() {
   const title = document.getElementById('nt-title').value.trim();
+  const desc = document.getElementById('nt-desc').value.trim();
   if (!title) { showToast('请输入事项内容'); return; }
   if (editTaskId) {
     const t = state.tasks.find(x => x.id === editTaskId);
-    if (t) { t.title = title; t.stageId = modalStage; }
+    if (t) { t.title = title; t.desc = desc; t.stageId = modalStage; }
     closeModal();
     mutate();
     showToast('已修改');
   } else {
-    state.tasks.push({ id: 'custom_' + Date.now(), stageId: modalStage, title: title, desc: '', done: false, custom: true });
+    state.tasks.push({ id: 'custom_' + Date.now(), stageId: modalStage, title: title, desc: desc, done: false, custom: true });
     activeStage = modalStage;
     closeModal();
     mutate();
