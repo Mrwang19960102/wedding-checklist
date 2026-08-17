@@ -457,20 +457,12 @@
 'use strict';
 /* ================= 基础数据 ================= */
 const STAGES = [
-  { id: 'stage1', name: '筹备启动', time: '婚前 12-6 个月' },
   { id: 'stage2', name: '核心预订', time: '婚前 6-3 个月' },
   { id: 'stage3', name: '细节落实', time: '婚前 3-1 个月' },
   { id: 'stage4', name: '冲刺准备', time: '婚前 1 个月内' },
   { id: 'stage5', name: '婚礼当天', time: '婚礼当日' },
 ];
 const RAW_TASKS = [
-  ['stage1', '双方家长见面，商定婚事', '确定彩礼嫁妆等初步共识'],
-  ['stage1', '确定婚期与备选日期', '结合黄历、节假日与酒店档期'],
-  ['stage1', '草拟婚礼预算方案', '明确总预算与各项分配'],
-  ['stage1', '确定宾客初步名单', '预估桌数，方便预订酒店'],
-  ['stage1', '预订婚宴酒店', '对比场地、菜单、档期与押金'],
-  ['stage1', '选定婚庆策划公司', '沟通风格、套餐与四大金刚'],
-  ['stage1', '婚前体检', '预约婚检，领取婚检报告'],
   ['stage2', '拍摄婚纱照', '提前选风格、定档期'],
   ['stage2', '挑选婚纱礼服与西装', '主纱、出门纱、敬酒服与新郎西装'],
   ['stage2', '预订司仪、跟妆、摄影摄像', '四大金刚尽早锁定档期'],
@@ -877,7 +869,7 @@ function renderMine() {
 }
 
 /* ================= 弹窗 ================= */
-let modalStage = 'stage1';
+let modalStage = 'stage2';
 let modalCat = '';
 let editBudgetCatId = '';
 
@@ -891,7 +883,7 @@ function closeModal() {
 }
 
 function openAddTask() {
-  modalStage = activeStage === 'all' ? 'stage1' : activeStage;
+  modalStage = activeStage === 'all' ? 'stage2' : activeStage;
   let chips = '';
   STAGES.forEach(s => {
     chips += '<button class="chip form' + (s.id === modalStage ? ' active' : '') + '" data-stage="' + s.id + '" onclick="pickModalStage(\'' + s.id + '\')">' + s.name + '</button>';
@@ -978,7 +970,7 @@ function submitEditBudget() {
 
 /* ================= 我的页 ================= */
 function resetTasks() {
-  if (!confirm('将恢复为系统预置的 29 项备婚清单，自定义事项与勾选状态会丢失。确定吗？')) return;
+  if (!confirm('将恢复为系统预置的 22 项备婚清单，自定义事项与勾选状态会丢失。确定吗？')) return;
   state.tasks = buildDefaultTasks();
   mutate();
   showToast('已恢复默认清单');
