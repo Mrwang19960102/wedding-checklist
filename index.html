@@ -532,6 +532,8 @@ const GH_FILE = 'data.json';
 let state = null;
 let fileSha = null;
 let saveTimer = null;
+// 数据结构版本号：每次调整默认清单结构后递增，旧版本本地缓存会被自动清理
+const DATA_VERSION = 2;
 
 function ghApi(method, body) {
   return fetch('https://api.github.com/repos/' + GH_REPO + '/contents/' + GH_FILE, {
@@ -561,8 +563,10 @@ function readLocal() {
   }
 }
 function writeLocal() {
-  try { localStorage.setItem('wc_data', JSON.stringify(state)); }
-  catch (e) { console.error('[Local] 写入失败', e); }
+  try {
+    localStorage.setItem('wc_data', JSON.stringify(state));
+    localStorage.setItem('wc_ver', String(DATA_VERSION));
+  } catch (e) { console.error('[Local] 写入失败', e); }
 }
 async function loadData() {
   setSync(GH_TOKEN ? '同步中…' : '本地模式', GH_TOKEN ? 'warn' : '');
@@ -581,7 +585,16 @@ async function loadData() {
       console.error('[Sync] GET 失败', e);
     }
   }
-  const local = readLocal();
+  // 本地缓存版本过旧（如默认清单结构调整）时直接丢弃，使用最新数据
+  const localVer = parseInt(localStorage.getItem('wc_ver') || '0', 10);
+  let local = null;
+  if (localVer >= DATA_VERSION) {
+    local = readLocal();
+  } else {
+    localStorage.removeItem('wc_data');
+    localStorage.removeItem('wc_pending');
+    console.info('[Local] 数据版本升级，清理旧缓存', localVer, '->', DATA_VERSION);
+  }
   const pending = localStorage.getItem('wc_pending') === '1';
   if (pending && local) {
     state = local;
