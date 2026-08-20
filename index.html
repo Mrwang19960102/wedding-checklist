@@ -246,6 +246,29 @@
   }
   .exp-edit:active { opacity: .6; }
 
+  /* ---------- 住宿 ---------- */
+  .note-item { display: flex; font-size: 13px; color: var(--text2); padding: 5px 0; }
+  .note-dot { color: var(--primary); margin-right: 6px; flex-shrink: 0; }
+  .guest-row { display: flex; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--divider); }
+  .guest-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .guest-info { flex: 1; min-width: 0; }
+  .guest-top { display: flex; align-items: center; }
+  .guest-name { font-size: 15px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .guest-room {
+    margin-left: 8px; font-size: 10px; padding: 1px 8px;
+    border-radius: 999px; background: var(--primary-bg); color: var(--primary);
+    flex-shrink: 0; white-space: nowrap;
+  }
+  .guest-meta { display: block; font-size: 12px; color: var(--text3); margin-top: 3px; }
+  .guest-idno { display: block; font-size: 11px; color: var(--text4); margin-top: 2px; letter-spacing: .3px; }
+  .f-textarea {
+    width: 100%; min-height: 88px; padding: 10px 14px;
+    border-radius: 12px; background: var(--input-bg);
+    font-size: 14px; color: var(--text);
+    resize: vertical; font-family: inherit; border: none; outline: none;
+  }
+  .f-textarea::placeholder { color: var(--text4); }
+
   /* ---------- 底部记账按钮 ---------- */
   .bottom-action {
     position: fixed; left: 0; right: 0; bottom: calc(60px + env(safe-area-inset-bottom));
@@ -403,6 +426,23 @@
       <div class="bottom-action"><button class="btn-primary" onclick="openAddExpense()">记一笔</button></div>
     </section>
 
+    <!-- 住宿 -->
+    <section id="view-hotel" class="view">
+      <div id="hotel-hero"></div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">入住备注</span></div>
+        <div id="hotel-notes"></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">入住名单</span>
+          <span class="card-tip" id="guest-count"></span>
+        </div>
+        <div id="guest-list"></div>
+      </div>
+      <div class="bottom-action"><button class="btn-primary" onclick="openAddGuest()">添加入住</button></div>
+    </section>
+
     <!-- 我的 -->
     <section id="view-mine" class="view">
       <div id="mine-profile"></div>
@@ -443,6 +483,10 @@
     <button class="tab" data-tab="budget" onclick="switchTab('budget')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="M20.5 10.5h-3.2a2 2 0 0 0 0 4h3.2"/><path d="M7 9h6"/></svg>
       预算
+    </button>
+    <button class="tab" data-tab="hotel" onclick="switchTab('hotel')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v11"/><path d="M21 18v-7a2 2 0 0 0-2-2H10v7"/><path d="M3 16h18"/><circle cx="6.5" cy="10.5" r="1.5"/></svg>
+      住宿
     </button>
     <button class="tab" data-tab="mine" onclick="switchTab('mine')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5S3.5 15.4 3.5 10C3.5 7.2 5.7 5 8.4 5c1.5 0 2.9.7 3.6 1.9C12.7 5.7 14.1 5 15.6 5c2.7 0 4.9 2.2 4.9 5 0 5.4-8.5 10.5-8.5 10.5z"/></svg>
@@ -615,7 +659,20 @@ const DEFAULT_DATA = {
   tasks: buildDefaultTasks(),
   categories: buildDefaultCategories(),
   expenses: buildDefaultExpenses(),
+  hotel: buildDefaultHotel(),
 };
+function buildDefaultHotel() {
+  return {
+    name: '登封市观嵩山假日酒店',
+    notes: ['尽量高楼层', '房间不要靠近电梯井'],
+    guests: [
+      { id: 'gst_1', name: '李永鑫', idNo: '410725199801239795', dates: '2026.10.2', room: '大床房', days: 1, count: 1, note: '' },
+      { id: 'gst_2', name: '李领领', idNo: '412728199602280091', dates: '2026.10.2', room: '大床房', days: 1, count: 1, note: '' },
+      { id: 'gst_3', name: '王子昊', idNo: '652301199804200814', dates: '2026.10.1~10.2', room: '大床房', days: 2, count: 1, note: '' },
+      { id: 'gst_4', name: '叔叔阿姨', idNo: '', dates: '2026.10.1~10.4', room: '大床房 或者 标间', days: 3, count: 1, note: '' },
+    ],
+  };
+}
 
 /* ================= GitHub 云同步 ================= */
 // 细粒度 Token：仅 wedding-checklist 仓库 Contents 读写（待配置）
@@ -787,12 +844,14 @@ function showToast(msg) {
 let activeStage = 'all';
 
 function renderAll() {
+  if (!state.hotel) state.hotel = buildDefaultHotel();
   renderListHero();
   renderStageFilter();
   renderStageList();
   renderBudgetHero();
   renderCatList();
   renderExpList();
+  renderHotel();
   renderMine();
 }
 
@@ -949,6 +1008,118 @@ function renderExpList() {
 function deleteExpense(id) {
   if (!confirm('确定要删除这条支出记录吗？')) return;
   state.expenses = state.expenses.filter(e => e.id !== id);
+  mutate();
+  showToast('已删除');
+}
+
+/* ================= 住宿 ================= */
+function renderHotel() {
+  const h = state.hotel;
+  document.getElementById('hotel-hero').innerHTML =
+    '<div class="hero"><div class="hero-top">' +
+      '<div style="flex:1;min-width:0">' +
+        '<div class="hero-names">' + esc(h.name) + '</div>' +
+        '<div class="hero-date">亲戚入住酒店</div>' +
+      '</div>' +
+      '<div class="task-edit" style="color:rgba(255,255,255,.9)" onclick="openEditHotel()">✎</div>' +
+    '</div></div>';
+  let notes = '';
+  (h.notes || []).forEach((n, i) => {
+    notes += '<div class="note-item"><span class="note-dot">' + (i + 1) + '.</span><span>' + esc(n) + '</span></div>';
+  });
+  document.getElementById('hotel-notes').innerHTML = notes || '<span class="empty-tip">暂无备注</span>';
+  document.getElementById('guest-count').textContent = '共 ' + (h.guests || []).length + ' 组';
+  let rows = '';
+  (h.guests || []).forEach(g => {
+    rows += '<div class="guest-row">' +
+      '<div class="guest-info">' +
+        '<div class="guest-top"><span class="guest-name">' + esc(g.name) + '</span><span class="guest-room">' + esc(g.room) + '</span></div>' +
+        '<span class="guest-meta">' + esc(g.dates) + ' · ' + g.days + ' 天 · ' + g.count + ' 间</span>' +
+        (g.idNo ? '<span class="guest-idno">' + esc(g.idNo) + '</span>' : '') +
+        (g.note ? '<span class="guest-meta">' + esc(g.note) + '</span>' : '') +
+      '</div>' +
+      '<div class="exp-edit" onclick="openEditGuest(\'' + g.id + '\')">✎</div>' +
+      '<div class="exp-del" onclick="deleteGuest(\'' + g.id + '\')">✕</div>' +
+    '</div>';
+  });
+  document.getElementById('guest-list').innerHTML = rows || '<span class="empty-tip">暂无入住信息，点击下方按钮添加</span>';
+}
+
+function openEditHotel() {
+  const h = state.hotel;
+  openModal('修改酒店信息',
+    '<label class="f-label">酒店名称</label>' +
+    '<input class="f-input" id="nh-name" maxlength="30" value="' + esc(h.name) + '">' +
+    '<label class="f-label">入住备注（每行一条）</label>' +
+    '<textarea class="f-textarea" id="nh-notes" rows="3" placeholder="例如：尽量高楼层">' + esc((h.notes || []).join('\n')) + '</textarea>' +
+    '<button class="btn-primary" onclick="submitEditHotel()">保存修改</button>');
+}
+function submitEditHotel() {
+  const name = document.getElementById('nh-name').value.trim();
+  if (!name) { showToast('请输入酒店名称'); return; }
+  state.hotel.name = name;
+  state.hotel.notes = document.getElementById('nh-notes').value.split('\n').map(s => s.trim()).filter(Boolean);
+  closeModal();
+  mutate();
+  showToast('已修改');
+}
+
+let editGuestId = '';
+function openAddGuest() { openGuestForm(null); }
+function openEditGuest(id) {
+  const g = (state.hotel.guests || []).find(x => x.id === id);
+  if (g) openGuestForm(g);
+}
+function openGuestForm(g) {
+  editGuestId = g ? g.id : '';
+  openModal(g ? '修改入住信息' : '添加入住',
+    '<label class="f-label">姓名</label>' +
+    '<input class="f-input" id="ng-name" maxlength="20" placeholder="例如：李永鑫" value="' + (g ? esc(g.name) : '') + '">' +
+    '<label class="f-label">身份证号（可选）</label>' +
+    '<input class="f-input" id="ng-idno" maxlength="18" placeholder="用于酒店登记" value="' + (g ? esc(g.idNo) : '') + '">' +
+    '<div class="row2">' +
+      '<div><label class="f-label">入住时间</label><input class="f-input" id="ng-dates" maxlength="30" placeholder="2026.10.1~10.2" value="' + (g ? esc(g.dates) : '') + '"></div>' +
+      '<div><label class="f-label">房型</label><input class="f-input" id="ng-room" maxlength="20" placeholder="大床房" value="' + (g ? esc(g.room) : '') + '"></div>' +
+    '</div>' +
+    '<div class="row2">' +
+      '<div><label class="f-label">天数</label><input class="f-input" id="ng-days" type="number" inputmode="numeric" min="1" value="' + (g ? g.days : 1) + '"></div>' +
+      '<div><label class="f-label">数量（间）</label><input class="f-input" id="ng-count" type="number" inputmode="numeric" min="1" value="' + (g ? g.count : 1) + '"></div>' +
+    '</div>' +
+    '<label class="f-label">备注（可选）</label>' +
+    '<input class="f-input" id="ng-note" maxlength="40" placeholder="特殊需求" value="' + (g ? esc(g.note) : '') + '">' +
+    '<button class="btn-primary" onclick="submitGuest()">' + (g ? '保存修改' : '确认添加') + '</button>');
+  setTimeout(() => document.getElementById('ng-name').focus(), 300);
+}
+function submitGuest() {
+  const name = document.getElementById('ng-name').value.trim();
+  if (!name) { showToast('请输入姓名'); return; }
+  const rec = {
+    name: name,
+    idNo: document.getElementById('ng-idno').value.trim(),
+    dates: document.getElementById('ng-dates').value.trim() || '待定',
+    room: document.getElementById('ng-room').value.trim() || '大床房',
+    days: Math.max(1, parseInt(document.getElementById('ng-days').value, 10) || 1),
+    count: Math.max(1, parseInt(document.getElementById('ng-count').value, 10) || 1),
+    note: document.getElementById('ng-note').value.trim(),
+  };
+  if (!state.hotel.guests) state.hotel.guests = [];
+  if (editGuestId) {
+    const g = state.hotel.guests.find(x => x.id === editGuestId);
+    if (g) Object.assign(g, rec);
+    closeModal();
+    mutate();
+    showToast('已修改');
+  } else {
+    rec.id = 'gst_' + Date.now();
+    state.hotel.guests.push(rec);
+    closeModal();
+    mutate();
+    showToast('已添加');
+  }
+}
+function deleteGuest(id) {
+  if (!confirm('确定要删除这条入住信息吗？')) return;
+  state.hotel.guests = (state.hotel.guests || []).filter(g => g.id !== id);
   mutate();
   showToast('已删除');
 }
