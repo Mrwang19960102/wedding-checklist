@@ -517,7 +517,6 @@ const STAGES = [
   { id: 'stage4', name: '冲刺准备', time: '婚前 1 个月内' },
   { id: 'g1', name: '四大金刚', time: '' },
   { id: 'g2', name: '婚宴酒店', time: '' },
-  { id: 'g3', name: '婚纱照', time: '' },
   { id: 'g4', name: '女方陪嫁', time: '' },
   { id: 'g5', name: '新娘行装', time: '' },
   { id: 'g6', name: '新郎', time: '' },
@@ -559,8 +558,6 @@ const RAW_TASKS = [
   ['g2', '接亲酒店客房 2200（含伴娘住宿）付定金', ''],
   ['g2', '租车 8000 劳斯莱斯 + 奔驰 S', '', 1],
   ['g2', '纸质 / 电子请帖 1000', ''],
-  // 婚纱照
-  ['g3', '四服四造 9988（已拍）', '', 1],
   // 女方陪嫁
   ['g4', '陪嫁床品（6 铺 6 盖）1w', ''],
   ['g4', '陪嫁小家电（给新家添置）', ''],
@@ -1288,7 +1285,7 @@ function submitEditBudget() {
 
 /* ================= 我的页 ================= */
 function resetTasks() {
-  if (!confirm('将恢复为系统预置的 78 项备婚清单，自定义事项与勾选状态会丢失。确定吗？')) return;
+  if (!confirm('将恢复为系统预置的 77 项备婚清单，自定义事项与勾选状态会丢失。确定吗？')) return;
   state.tasks = buildDefaultTasks();
   mutate();
   showToast('已恢复默认清单');
