@@ -260,6 +260,8 @@
   .info-text { font-size: 13px; color: var(--text2); line-height: 1.6; min-width: 0; }
   .info-text.link { color: var(--primary); }
   .info-row:active { opacity: .8; }
+  .link-tip { color: var(--primary); cursor: pointer; }
+  .link-tip:active { opacity: .7; }
   .guest-row { display: flex; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--divider); }
   .guest-row:last-child { border-bottom: none; padding-bottom: 0; }
   .guest-info { flex: 1; min-width: 0; }
@@ -450,22 +452,7 @@
 
     <!-- 住宿 -->
     <section id="view-hotel" class="view">
-      <div id="hotel-hero"></div>
-      <div class="card">
-        <div class="card-head"><span class="card-title">酒店信息</span></div>
-        <div id="hotel-info"></div>
-      </div>
-      <div class="card">
-        <div class="card-head"><span class="card-title">入住备注</span></div>
-        <div id="hotel-notes"></div>
-      </div>
-      <div class="card">
-        <div class="card-head">
-          <span class="card-title">入住名单</span>
-          <span class="card-tip" id="guest-count"></span>
-        </div>
-        <div id="guest-list"></div>
-      </div>
+      <div id="hotel-wrap"></div>
       <div class="bottom-action"><button class="btn-primary" onclick="openAddGuest()">添加入住</button></div>
     </section>
 
@@ -647,21 +634,39 @@ const DEFAULT_DATA = {
   tasks: buildDefaultTasks(),
   categories: buildDefaultCategories(),
   expenses: buildDefaultExpenses(),
-  hotel: buildDefaultHotel(),
+  hotels: [buildDefaultHotel(), buildPickupHotel()],
 };
 function buildDefaultHotel() {
   return {
+    id: 'hotel_main',
+    tag: '亲戚入住酒店',
     name: '登封市观嵩山假日酒店',
     address: '登封市少林街道禅武大街1号（少林大道与禅武大街交叉口东南角）',
     phone: '',
     highlights: ['2024 年开业 · 嵩山风景名胜区高档酒店榜 No.1', '两栋楼 616 张床位 · 餐饮位 1200 余 · 免费停车位 295 个'],
     notes: ['尽量高楼层', '房间不要靠近电梯井'],
+    bookings: [],
     guests: [
       { id: 'gst_1', name: '李永鑫', idNo: '410725199801239795', dates: '2026.10.2', room: '大床房', days: 1, count: 1, note: '' },
       { id: 'gst_2', name: '李领领', idNo: '412728199602280091', dates: '2026.10.2', room: '大床房', days: 1, count: 1, note: '' },
       { id: 'gst_3', name: '王子昊', idNo: '652301199804200814', dates: '2026.10.1~10.2', room: '大床房', days: 2, count: 1, note: '' },
       { id: 'gst_4', name: '叔叔阿姨', idNo: '', dates: '2026.10.1~10.4', room: '大床房 或者 标间', days: 3, count: 1, note: '' },
     ],
+  };
+}
+function buildPickupHotel() {
+  return {
+    id: 'hotel_pickup',
+    tag: '接亲酒店',
+    name: '中州国际少林大饭店',
+    address: '登封市少林街道办事处禅武大街1号',
+    phone: '',
+    highlights: ['少林禅宗文化主题 · 五钻标准建设', '819㎡ 豪华无柱宴会厅 · 餐饮包房 10 个'],
+    notes: [],
+    bookings: [
+      { id: 'bk_1', room: '总统套房', dates: '2026.10.2~2026.10.3', nights: 1, count: 1, note: '接亲用' },
+    ],
+    guests: [],
   };
 }
 
@@ -835,12 +840,21 @@ function showToast(msg) {
 let activeStage = 'all';
 
 function renderAll() {
-  if (!state.hotel) state.hotel = buildDefaultHotel();
-  // 旧缓存补齐酒店信息字段
-  const dh = buildDefaultHotel();
-  if (!('address' in state.hotel)) state.hotel.address = dh.address;
-  if (!('phone' in state.hotel)) state.hotel.phone = '';
-  if (!('highlights' in state.hotel)) state.hotel.highlights = dh.highlights;
+  if (!state.hotels) {
+    // 旧缓存迁移：单酒店 -> 多酒店
+    const main = state.hotel || buildDefaultHotel();
+    if (!main.id) main.id = 'hotel_main';
+    if (!main.tag) main.tag = '亲戚入住酒店';
+    state.hotels = [main, buildPickupHotel()];
+  }
+  state.hotels.forEach(h => {
+    if (!('address' in h)) h.address = '';
+    if (!('phone' in h)) h.phone = '';
+    if (!('highlights' in h)) h.highlights = [];
+    if (!h.notes) h.notes = [];
+    if (!h.guests) h.guests = [];
+    if (!h.bookings) h.bookings = [];
+  });
   // 清理已下线阶段的遗留任务（如旧缓存中的「婚礼当天」）
   state.tasks = state.tasks.filter(t => STAGES.some(s => s.id === t.stageId));
   renderListHero();
@@ -1009,48 +1023,73 @@ function deleteExpense(id) {
   });
 }
 
-/* ================= 住宿 ================= */
+/* ================= 住宿（多酒店） ================= */
+function findHotel(id) {
+  return (state.hotels || []).find(h => h.id === id);
+}
 function renderHotel() {
-  const h = state.hotel;
-  document.getElementById('hotel-hero').innerHTML =
-    '<div class="hero"><div class="hero-top">' +
+  let html = '';
+  (state.hotels || []).forEach(h => {
+    // 酒店头卡
+    html += '<div class="hero" style="margin-top:12px"><div class="hero-top">' +
       '<div style="flex:1;min-width:0">' +
         '<div class="hero-names">' + esc(h.name) + '</div>' +
-        '<div class="hero-date">亲戚入住酒店</div>' +
+        '<div class="hero-date">' + esc(h.tag || '') + '</div>' +
       '</div>' +
-      '<div class="task-edit" style="color:rgba(255,255,255,.9)" onclick="openEditHotel()">✎</div>' +
+      '<div class="task-edit" style="color:rgba(255,255,255,.9)" onclick="openEditHotel(\'' + h.id + '\')">✎</div>' +
     '</div></div>';
-  let info =
-    '<div class="info-row"><span class="info-label">地址</span><span class="info-text">' + esc(h.address || '未填写') + '</span></div>' +
-    '<div class="info-row" onclick="callHotel()"><span class="info-label">电话</span><span class="info-text' + (h.phone ? ' link' : '') + '">' + (h.phone ? esc(h.phone) + '（点击拨打）' : '未填写，点右上角 ✎ 补充') + '</span></div>';
-  (h.highlights || []).forEach(t => {
-    info += '<div class="info-row"><span class="info-label">亮点</span><span class="info-text">' + esc(t) + '</span></div>';
-  });
-  document.getElementById('hotel-info').innerHTML = info;
-  let notes = '';
-  (h.notes || []).forEach((n, i) => {
-    notes += '<div class="note-item"><span class="note-dot">' + (i + 1) + '.</span><span>' + esc(n) + '</span></div>';
-  });
-  document.getElementById('hotel-notes').innerHTML = notes || '<span class="empty-tip">暂无备注</span>';
-  document.getElementById('guest-count').textContent = '共 ' + (h.guests || []).length + ' 组';
-  let rows = '';
-  (h.guests || []).forEach(g => {
-    rows += '<div class="guest-row">' +
-      '<div class="guest-info">' +
+    // 酒店信息
+    let info =
+      '<div class="info-row"><span class="info-label">地址</span><span class="info-text">' + esc(h.address || '未填写') + '</span></div>' +
+      '<div class="info-row" onclick="callHotel(\'' + h.id + '\')"><span class="info-label">电话</span><span class="info-text' + (h.phone ? ' link' : '') + '">' + (h.phone ? esc(h.phone) + '（点击拨打）' : '未填写，点右上角 ✎ 补充') + '</span></div>';
+    (h.highlights || []).forEach(t => {
+      info += '<div class="info-row"><span class="info-label">亮点</span><span class="info-text">' + esc(t) + '</span></div>';
+    });
+    html += '<div class="card"><div class="card-head"><span class="card-title">酒店信息</span></div>' + info + '</div>';
+    // 预定信息
+    let bk = '';
+    (h.bookings || []).forEach(b => {
+      bk += '<div class="guest-row"><div class="guest-info">' +
+        '<div class="guest-top"><span class="guest-name">' + esc(b.room) + '</span><span class="guest-room">' + b.nights + ' 晚 · ' + b.count + ' 间</span></div>' +
+        '<span class="guest-meta">' + esc(b.dates) + '</span>' +
+        (b.note ? '<span class="guest-meta">' + esc(b.note) + '</span>' : '') +
+        '</div>' +
+        '<div class="exp-edit" onclick="openEditBooking(\'' + h.id + '\',\'' + b.id + '\')">✎</div>' +
+        '<div class="exp-del" onclick="deleteBooking(\'' + h.id + '\',\'' + b.id + '\')">✕</div></div>';
+    });
+    html += '<div class="card"><div class="card-head"><span class="card-title">预定信息</span><span class="card-tip link-tip" onclick="openAddBooking(\'' + h.id + '\')">+ 添加预定</span></div>' +
+      (bk || '<span class="empty-tip">暂无预定</span>') + '</div>';
+    // 入住备注
+    if ((h.notes || []).length) {
+      let notes = '';
+      h.notes.forEach((n, i) => {
+        notes += '<div class="note-item"><span class="note-dot">' + (i + 1) + '.</span><span>' + esc(n) + '</span></div>';
+      });
+      html += '<div class="card"><div class="card-head"><span class="card-title">入住备注</span></div>' + notes + '</div>';
+    }
+    // 入住名单
+    let rows = '';
+    (h.guests || []).forEach(g => {
+      rows += '<div class="guest-row"><div class="guest-info">' +
         '<div class="guest-top"><span class="guest-name">' + esc(g.name) + '</span><span class="guest-room">' + esc(g.room) + '</span></div>' +
         '<span class="guest-meta">' + esc(g.dates) + ' · ' + g.days + ' 天 · ' + g.count + ' 间</span>' +
         (g.idNo ? '<span class="guest-idno">' + esc(g.idNo) + '</span>' : '') +
         (g.note ? '<span class="guest-meta">' + esc(g.note) + '</span>' : '') +
-      '</div>' +
-      '<div class="exp-edit" onclick="openEditGuest(\'' + g.id + '\')">✎</div>' +
-      '<div class="exp-del" onclick="deleteGuest(\'' + g.id + '\')">✕</div>' +
-    '</div>';
+        '</div>' +
+        '<div class="exp-edit" onclick="openEditGuest(\'' + h.id + '\',\'' + g.id + '\')">✎</div>' +
+        '<div class="exp-del" onclick="deleteGuest(\'' + h.id + '\',\'' + g.id + '\')">✕</div></div>';
+    });
+    html += '<div class="card"><div class="card-head"><span class="card-title">入住名单</span><span class="card-tip">共 ' + (h.guests || []).length + ' 组</span></div>' +
+      (rows || '<span class="empty-tip">暂无入住信息，点底部按钮添加</span>') + '</div>';
   });
-  document.getElementById('guest-list').innerHTML = rows || '<span class="empty-tip">暂无入住信息，点击下方按钮添加</span>';
+  document.getElementById('hotel-wrap').innerHTML = html;
 }
 
-function openEditHotel() {
-  const h = state.hotel;
+let editHotelId = '';
+function openEditHotel(id) {
+  const h = findHotel(id);
+  if (!h) return;
+  editHotelId = id;
   openModal('修改酒店信息',
     '<label class="f-label">酒店名称</label>' +
     '<input class="f-input" id="nh-name" maxlength="30" value="' + esc(h.name) + '">' +
@@ -1063,31 +1102,108 @@ function openEditHotel() {
     '<button class="btn-primary" onclick="submitEditHotel()">保存修改</button>');
 }
 function submitEditHotel() {
+  const h = findHotel(editHotelId);
+  if (!h) return;
   const name = document.getElementById('nh-name').value.trim();
   if (!name) { showToast('请输入酒店名称'); return; }
-  state.hotel.name = name;
-  state.hotel.address = document.getElementById('nh-address').value.trim();
-  state.hotel.phone = document.getElementById('nh-phone').value.trim();
-  state.hotel.notes = document.getElementById('nh-notes').value.split('\n').map(s => s.trim()).filter(Boolean);
+  h.name = name;
+  h.address = document.getElementById('nh-address').value.trim();
+  h.phone = document.getElementById('nh-phone').value.trim();
+  h.notes = document.getElementById('nh-notes').value.split('\n').map(s => s.trim()).filter(Boolean);
   closeModal();
   mutate();
   showToast('已修改');
 }
-function callHotel() {
-  const phone = state.hotel.phone;
+function callHotel(id) {
+  const h = findHotel(id);
+  const phone = h && h.phone;
   if (!phone) { showToast('电话未填写，点酒店卡片右上角 ✎ 补充'); return; }
   window.location.href = 'tel:' + phone;
 }
 
-let editGuestId = '';
-function openAddGuest() { openGuestForm(null); }
-function openEditGuest(id) {
-  const g = (state.hotel.guests || []).find(x => x.id === id);
-  if (g) openGuestForm(g);
+/* ---------- 预定 ---------- */
+let editBookingId = '';
+let bookingHotelId = '';
+function openAddBooking(hotelId) { openBookingForm(hotelId, null); }
+function openEditBooking(hotelId, id) {
+  const h = findHotel(hotelId);
+  const b = h && (h.bookings || []).find(x => x.id === id);
+  if (b) openBookingForm(hotelId, b);
 }
-function openGuestForm(g) {
+function openBookingForm(hotelId, b) {
+  bookingHotelId = hotelId;
+  editBookingId = b ? b.id : '';
+  openModal(b ? '修改预定' : '添加预定',
+    '<label class="f-label">房型</label>' +
+    '<input class="f-input" id="nb-room" maxlength="20" placeholder="例如：总统套房" value="' + (b ? esc(b.room) : '') + '">' +
+    '<div class="row2">' +
+      '<div><label class="f-label">日期</label><input class="f-input" id="nb-dates" maxlength="30" placeholder="2026.10.2~2026.10.3" value="' + (b ? esc(b.dates) : '') + '"></div>' +
+      '<div><label class="f-label">晚数</label><input class="f-input" id="nb-nights" type="number" inputmode="numeric" min="1" value="' + (b ? b.nights : 1) + '"></div>' +
+    '</div>' +
+    '<div class="row2">' +
+      '<div><label class="f-label">数量（间）</label><input class="f-input" id="nb-count" type="number" inputmode="numeric" min="1" value="' + (b ? b.count : 1) + '"></div>' +
+      '<div><label class="f-label">备注</label><input class="f-input" id="nb-note" maxlength="30" placeholder="可选" value="' + (b ? esc(b.note) : '') + '"></div>' +
+    '</div>' +
+    '<button class="btn-primary" onclick="submitBooking()">' + (b ? '保存修改' : '确认添加') + '</button>');
+  setTimeout(() => document.getElementById('nb-room').focus(), 300);
+}
+function submitBooking() {
+  const h = findHotel(bookingHotelId);
+  if (!h) return;
+  const room = document.getElementById('nb-room').value.trim();
+  if (!room) { showToast('请输入房型'); return; }
+  const rec = {
+    room: room,
+    dates: document.getElementById('nb-dates').value.trim() || '待定',
+    nights: Math.max(1, parseInt(document.getElementById('nb-nights').value, 10) || 1),
+    count: Math.max(1, parseInt(document.getElementById('nb-count').value, 10) || 1),
+    note: document.getElementById('nb-note').value.trim(),
+  };
+  if (!h.bookings) h.bookings = [];
+  if (editBookingId) {
+    const b = h.bookings.find(x => x.id === editBookingId);
+    if (b) Object.assign(b, rec);
+    closeModal();
+    mutate();
+    showToast('已修改');
+  } else {
+    rec.id = 'bk_' + Date.now();
+    h.bookings.push(rec);
+    closeModal();
+    mutate();
+    showToast('已添加');
+  }
+}
+function deleteBooking(hotelId, id) {
+  askConfirm('确定要删除这条预定信息吗？', () => {
+    const h = findHotel(hotelId);
+    if (h) h.bookings = (h.bookings || []).filter(b => b.id !== id);
+    mutate();
+    showToast('已删除');
+  });
+}
+
+/* ---------- 入住人 ---------- */
+let editGuestId = '';
+let guestHotelId = '';
+function openAddGuest() {
+  openGuestForm(state.hotels && state.hotels.length > 0 ? state.hotels[0].id : '', null);
+}
+function openEditGuest(hotelId, id) {
+  const h = findHotel(hotelId);
+  const g = h && (h.guests || []).find(x => x.id === id);
+  if (g) openGuestForm(hotelId, g);
+}
+function openGuestForm(hotelId, g) {
+  guestHotelId = hotelId;
   editGuestId = g ? g.id : '';
+  let chips = '';
+  (state.hotels || []).forEach(h => {
+    chips += '<button class="chip form' + (h.id === guestHotelId ? ' active' : '') + '" data-hotel="' + h.id + '" onclick="pickGuestHotel(\'' + h.id + '\')">' + esc(h.name) + '</button>';
+  });
   openModal(g ? '修改入住信息' : '添加入住',
+    '<label class="f-label">所属酒店</label>' +
+    '<div class="form-chips" id="ng-hotels">' + chips + '</div>' +
     '<label class="f-label">姓名</label>' +
     '<input class="f-input" id="ng-name" maxlength="20" placeholder="例如：李永鑫" value="' + (g ? esc(g.name) : '') + '">' +
     '<label class="f-label">身份证号（可选）</label>' +
@@ -1105,7 +1221,15 @@ function openGuestForm(g) {
     '<button class="btn-primary" onclick="submitGuest()">' + (g ? '保存修改' : '确认添加') + '</button>');
   setTimeout(() => document.getElementById('ng-name').focus(), 300);
 }
+function pickGuestHotel(id) {
+  guestHotelId = id;
+  document.querySelectorAll('#ng-hotels .chip').forEach(el => {
+    el.classList.toggle('active', el.dataset.hotel === id);
+  });
+}
 function submitGuest() {
+  const h = findHotel(guestHotelId);
+  if (!h) { showToast('请选择酒店'); return; }
   const name = document.getElementById('ng-name').value.trim();
   if (!name) { showToast('请输入姓名'); return; }
   const rec = {
@@ -1117,24 +1241,25 @@ function submitGuest() {
     count: Math.max(1, parseInt(document.getElementById('ng-count').value, 10) || 1),
     note: document.getElementById('ng-note').value.trim(),
   };
-  if (!state.hotel.guests) state.hotel.guests = [];
+  if (!h.guests) h.guests = [];
   if (editGuestId) {
-    const g = state.hotel.guests.find(x => x.id === editGuestId);
+    const g = h.guests.find(x => x.id === editGuestId);
     if (g) Object.assign(g, rec);
     closeModal();
     mutate();
     showToast('已修改');
   } else {
     rec.id = 'gst_' + Date.now();
-    state.hotel.guests.push(rec);
+    h.guests.push(rec);
     closeModal();
     mutate();
     showToast('已添加');
   }
 }
-function deleteGuest(id) {
+function deleteGuest(hotelId, id) {
   askConfirm('确定要删除这条入住信息吗？', () => {
-    state.hotel.guests = (state.hotel.guests || []).filter(g => g.id !== id);
+    const h = findHotel(hotelId);
+    if (h) h.guests = (h.guests || []).filter(g => g.id !== id);
     mutate();
     showToast('已删除');
   });
