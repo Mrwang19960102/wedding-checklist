@@ -268,6 +268,17 @@
   }
   .f-textarea::placeholder { color: var(--text4); }
 
+  /* ---------- 确认弹窗 ---------- */
+  .confirm-text { font-size: 14px; color: var(--text2); line-height: 1.7; }
+  .confirm-btns { display: flex; gap: 10px; margin-top: 24px; }
+  .confirm-btns .btn-primary { flex: 1; margin-top: 0; }
+  .btn-ghost {
+    flex: 1; height: 48px; border-radius: 999px;
+    background: var(--input-bg); color: var(--text2);
+    font-size: 15px; display: flex; align-items: center; justify-content: center;
+  }
+  .btn-ghost:active { opacity: .8; }
+
   /* ---------- 底部记账按钮 ---------- */
   .bottom-action {
     position: fixed; left: 0; right: 0; bottom: calc(60px + env(safe-area-inset-bottom));
@@ -903,10 +914,11 @@ function toggleTask(id) {
   mutate();
 }
 function deleteTask(id) {
-  if (!confirm('确定要删除这条备婚事项吗？')) return;
-  state.tasks = state.tasks.filter(t => t.id !== id);
-  mutate();
-  showToast('已删除');
+  askConfirm('确定要删除这条备婚事项吗？', () => {
+    state.tasks = state.tasks.filter(t => t.id !== id);
+    mutate();
+    showToast('已删除');
+  });
 }
 
 function renderBudgetHero() {
@@ -976,10 +988,11 @@ function renderExpList() {
 }
 
 function deleteExpense(id) {
-  if (!confirm('确定要删除这条支出记录吗？')) return;
-  state.expenses = state.expenses.filter(e => e.id !== id);
-  mutate();
-  showToast('已删除');
+  askConfirm('确定要删除这条支出记录吗？', () => {
+    state.expenses = state.expenses.filter(e => e.id !== id);
+    mutate();
+    showToast('已删除');
+  });
 }
 
 /* ================= 住宿 ================= */
@@ -1088,10 +1101,11 @@ function submitGuest() {
   }
 }
 function deleteGuest(id) {
-  if (!confirm('确定要删除这条入住信息吗？')) return;
-  state.hotel.guests = (state.hotel.guests || []).filter(g => g.id !== id);
-  mutate();
-  showToast('已删除');
+  askConfirm('确定要删除这条入住信息吗？', () => {
+    state.hotel.guests = (state.hotel.guests || []).filter(g => g.id !== id);
+    mutate();
+    showToast('已删除');
+  });
 }
 
 function renderMine() {
@@ -1132,6 +1146,24 @@ function openModal(title, bodyHtml) {
 }
 function closeModal() {
   document.getElementById('modal-mask').classList.remove('show');
+}
+
+/* 自定义确认弹窗（替代系统 confirm，兼容微信等内置浏览器） */
+let pendingConfirm = null;
+function askConfirm(text, onOk) {
+  pendingConfirm = onOk;
+  openModal('请确认',
+    '<div class="confirm-text">' + esc(text) + '</div>' +
+    '<div class="confirm-btns">' +
+      '<button class="btn-ghost" onclick="closeModal()">取消</button>' +
+      '<button class="btn-primary" onclick="submitConfirm()">确定</button>' +
+    '</div>');
+}
+function submitConfirm() {
+  const cb = pendingConfirm;
+  pendingConfirm = null;
+  closeModal();
+  if (cb) cb();
 }
 
 function openAddTask() {
@@ -1262,22 +1294,25 @@ function submitEditBudget() {
 
 /* ================= 我的页 ================= */
 function resetTasks() {
-  if (!confirm('将恢复为系统预置的 58 项备婚清单，自定义事项与勾选状态会丢失。确定吗？')) return;
-  state.tasks = buildDefaultTasks();
-  mutate();
-  showToast('已恢复默认清单');
+  askConfirm('将恢复为系统预置的 58 项备婚清单，自定义事项与勾选状态会丢失。', () => {
+    state.tasks = buildDefaultTasks();
+    mutate();
+    showToast('已恢复默认清单');
+  });
 }
 function resetExpenses() {
-  if (!confirm('将删除全部支出记录，分类预算保留。确定吗？')) return;
-  state.expenses = [];
-  mutate();
-  showToast('已清空支出记录');
+  askConfirm('将删除全部支出记录，分类预算保留。', () => {
+    state.expenses = [];
+    mutate();
+    showToast('已清空支出记录');
+  });
 }
 function resetAll() {
-  if (!confirm('将恢复所有数据到初始状态（新人信息、清单与预算），此操作不可撤销。确定吗？')) return;
-  state = JSON.parse(JSON.stringify(DEFAULT_DATA));
-  mutate();
-  showToast('已重置全部数据');
+  askConfirm('将恢复所有数据到初始状态（新人信息、清单与预算），此操作不可撤销。', () => {
+    state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+    mutate();
+    showToast('已重置全部数据');
+  });
 }
 
 /* ================= Tab 切换 ================= */
