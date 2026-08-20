@@ -112,9 +112,8 @@
   .bar.danger { background: var(--error); }
 
   /* ---------- 筛选 chips ---------- */
-  .chips-scroll { margin-top: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-  .chips-scroll::-webkit-scrollbar { display: none; }
-  .chips-row { display: flex; gap: 8px; white-space: nowrap; padding: 2px; }
+  .chips-scroll { margin-top: 12px; }
+  .chips-row { display: flex; flex-wrap: wrap; gap: 8px; padding: 2px; }
   .chip {
     flex-shrink: 0;
     height: 34px; padding: 0 16px;
