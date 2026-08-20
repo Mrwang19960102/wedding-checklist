@@ -430,8 +430,8 @@
       <div id="budget-hero"></div>
       <div class="card">
         <div class="card-head">
-          <span class="card-title">分类预算</span>
-          <span class="card-tip">点击分类可调整预算</span>
+          <span class="card-title">分类花费</span>
+          <span class="card-tip">占总支出比例</span>
         </div>
         <div id="cat-list"></div>
       </div>
@@ -505,7 +505,7 @@
     </button>
     <button class="tab" data-tab="budget" onclick="switchTab('budget')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="M20.5 10.5h-3.2a2 2 0 0 0 0 4h3.2"/><path d="M7 9h6"/></svg>
-      预算
+      花费
     </button>
     <button class="tab" data-tab="hotel" onclick="switchTab('hotel')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v11"/><path d="M21 18v-7a2 2 0 0 0-2-2H10v7"/><path d="M3 16h18"/><circle cx="6.5" cy="10.5" r="1.5"/></svg>
@@ -943,41 +943,38 @@ function deleteTask(id) {
 }
 
 function renderBudgetHero() {
-  const totalBudget = state.categories.reduce((s, c) => s + c.planned, 0);
   const totalSpent = state.expenses.reduce((s, e) => s + e.amount, 0);
-  const remaining = totalBudget - totalSpent;
-  const percent = totalBudget > 0 ? Math.min(Math.round(totalSpent / totalBudget * 100), 100) : 0;
-  const over = totalSpent > totalBudget;
+  const byCat = {};
+  state.expenses.forEach(e => { byCat[e.categoryId] = (byCat[e.categoryId] || 0) + e.amount; });
+  let topId = '';
+  let topVal = 0;
+  Object.keys(byCat).forEach(k => { if (byCat[k] > topVal) { topVal = byCat[k]; topId = k; } });
   document.getElementById('budget-hero').innerHTML =
     '<div class="hero">' +
       '<div class="hero-stats">' +
-        '<div class="stat-item"><span class="stat-value">' + fmtMoney(totalBudget) + '</span><span class="stat-label">总预算</span></div>' +
-        '<div class="stat-item"><span class="stat-value">' + fmtMoney(totalSpent) + '</span><span class="stat-label">已花费</span></div>' +
-        '<div class="stat-item"><span class="stat-value">' + fmtMoney(remaining) + '</span><span class="stat-label">' + (remaining >= 0 ? '剩余可用' : '已超支') + '</span></div>' +
+        '<div class="stat-item"><span class="stat-value">' + fmtMoney(totalSpent) + '</span><span class="stat-label">总花费</span></div>' +
+        '<div class="stat-item"><span class="stat-value">' + state.expenses.length + '</span><span class="stat-label">支出笔数</span></div>' +
+        '<div class="stat-item"><span class="stat-value">' + (topId ? esc(catName(topId)) : '-') + '</span><span class="stat-label">花费最多</span></div>' +
       '</div>' +
-      '<div class="hero-divider"></div>' +
-      '<div class="hero-progress-info"><span>预算使用率</span><span>' + (totalBudget > 0 ? Math.round(totalSpent / totalBudget * 100) : 0) + '%</span></div>' +
-      '<div class="track white" style="height:7px"><div class="bar' + (over ? ' danger' : '') + '" style="width:' + percent + '%"></div></div>' +
     '</div>';
 }
 
 function renderCatList() {
   const spentMap = {};
   state.expenses.forEach(e => { spentMap[e.categoryId] = (spentMap[e.categoryId] || 0) + e.amount; });
+  const totalSpent = state.expenses.reduce((s, e) => s + e.amount, 0);
   let html = '';
   state.categories.forEach(c => {
     const spent = spentMap[c.id] || 0;
-    const over = spent > c.planned;
-    const percent = c.planned > 0 ? Math.min(spent / c.planned * 100, 100) : (spent > 0 ? 100 : 0);
-    html += '<div class="cat-row" onclick="openEditBudget(\'' + c.id + '\')">' +
+    const share = totalSpent > 0 ? Math.round(spent / totalSpent * 100) : 0;
+    html += '<div class="cat-row">' +
       '<div class="cat-icon" style="background:' + catColor(c.id) + '">' + esc(c.name.slice(0, 1)) + '</div>' +
       '<div class="cat-info">' +
         '<div class="cat-name-row">' +
           '<span class="cat-name">' + esc(c.name) + '</span>' +
-          '<span class="cat-amounts' + (over ? ' over' : '') + '"><b>' + fmtMoney(spent) + '</b> / ' + fmtMoney(c.planned) + '</span>' +
-          (over ? '<span class="over-tag">超支</span>' : '') +
+          '<span class="cat-amounts"><b>' + fmtMoney(spent) + '</b> · ' + share + '%</span>' +
         '</div>' +
-        '<div class="cat-bar"><div class="track" style="height:4px"><div class="bar' + (over ? ' danger' : '') + '" style="width:' + percent + '%"></div></div></div>' +
+        '<div class="cat-bar"><div class="track" style="height:4px"><div class="bar" style="width:' + share + '%"></div></div></div>' +
       '</div>' +
     '</div>';
   });
@@ -1174,7 +1171,6 @@ function renderMine() {
 /* ================= 弹窗 ================= */
 let modalStage = 'stage2';
 let modalCat = '';
-let editBudgetCatId = '';
 let editTaskId = '';
 let editExpenseId = '';
 
@@ -1311,26 +1307,6 @@ function submitNewExpense() {
   }
 }
 
-function openEditBudget(id) {
-  const cat = state.categories.find(c => c.id === id);
-  if (!cat) return;
-  editBudgetCatId = id;
-  openModal('调整「' + cat.name + '」预算',
-    '<label class="f-label">预算金额（元）</label>' +
-    '<input class="f-input" id="eb-amount" type="number" inputmode="decimal" min="0" value="' + cat.planned + '">' +
-    '<button class="btn-primary" onclick="submitEditBudget()">确认调整</button>');
-  setTimeout(() => { const el = document.getElementById('eb-amount'); el.focus(); el.select && el.select(); }, 300);
-}
-function submitEditBudget() {
-  const planned = parseFloat(document.getElementById('eb-amount').value);
-  if (!Number.isFinite(planned) || planned < 0) { showToast('请输入正确的预算金额'); return; }
-  const cat = state.categories.find(c => c.id === editBudgetCatId);
-  if (cat) cat.planned = Math.round(planned * 100) / 100;
-  closeModal();
-  mutate();
-  showToast('已更新预算');
-}
-
 /* ================= 我的页 ================= */
 function resetTasks() {
   askConfirm('将恢复为系统预置的 58 项备婚清单，自定义事项与勾选状态会丢失。', () => {
@@ -1347,7 +1323,7 @@ function resetExpenses() {
   });
 }
 function resetAll() {
-  askConfirm('将恢复所有数据到初始状态（新人信息、清单与预算），此操作不可撤销。', () => {
+  askConfirm('将恢复所有数据到初始状态（新人信息、清单与花费），此操作不可撤销。', () => {
     state = JSON.parse(JSON.stringify(DEFAULT_DATA));
     mutate();
     showToast('已重置全部数据');
