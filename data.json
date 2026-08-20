@@ -30,7 +30,6 @@
     { "id": "task_38", "stageId": "g2", "title": "接亲酒店客房 2200（含伴娘住宿）付定金", "desc": "", "done": false },
     { "id": "task_39", "stageId": "g2", "title": "租车 8000 劳斯莱斯 + 奔驰 S", "desc": "", "done": true },
     { "id": "task_40", "stageId": "g2", "title": "纸质 / 电子请帖 1000", "desc": "", "done": false },
-    { "id": "task_41", "stageId": "g3", "title": "四服四造 9988（已拍）", "desc": "", "done": true },
     { "id": "task_42", "stageId": "g4", "title": "陪嫁床品（6 铺 6 盖）1w", "desc": "", "done": false },
     { "id": "task_43", "stageId": "g4", "title": "陪嫁小家电（给新家添置）", "desc": "", "done": false },
     { "id": "task_44", "stageId": "g4", "title": "陪嫁箱 388", "desc": "", "done": true },
