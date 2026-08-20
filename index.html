@@ -248,6 +248,15 @@
   /* ---------- 住宿 ---------- */
   .note-item { display: flex; font-size: 13px; color: var(--text2); padding: 5px 0; }
   .note-dot { color: var(--primary); margin-right: 6px; flex-shrink: 0; }
+  .info-row { display: flex; align-items: flex-start; padding: 9px 0; }
+  .info-label {
+    flex-shrink: 0; margin-right: 10px; margin-top: 1px;
+    font-size: 11px; color: var(--primary); background: var(--primary-bg);
+    padding: 2px 9px; border-radius: 999px; white-space: nowrap;
+  }
+  .info-text { font-size: 13px; color: var(--text2); line-height: 1.6; min-width: 0; }
+  .info-text.link { color: var(--primary); }
+  .info-row:active { opacity: .8; }
   .guest-row { display: flex; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--divider); }
   .guest-row:last-child { border-bottom: none; padding-bottom: 0; }
   .guest-info { flex: 1; min-width: 0; }
@@ -439,6 +448,10 @@
     <!-- 住宿 -->
     <section id="view-hotel" class="view">
       <div id="hotel-hero"></div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">酒店信息</span></div>
+        <div id="hotel-info"></div>
+      </div>
       <div class="card">
         <div class="card-head"><span class="card-title">入住备注</span></div>
         <div id="hotel-notes"></div>
@@ -643,6 +656,9 @@ const DEFAULT_DATA = {
 function buildDefaultHotel() {
   return {
     name: '登封市观嵩山假日酒店',
+    address: '登封市少林街道禅武大街1号（少林大道与禅武大街交叉口东南角）',
+    phone: '',
+    highlights: ['2024 年开业 · 嵩山风景名胜区高档酒店榜 No.1', '两栋楼 616 张床位 · 餐饮位 1200 余 · 免费停车位 295 个'],
     notes: ['尽量高楼层', '房间不要靠近电梯井'],
     guests: [
       { id: 'gst_1', name: '李永鑫', idNo: '410725199801239795', dates: '2026.10.2', room: '大床房', days: 1, count: 1, note: '' },
@@ -824,6 +840,11 @@ let activeStage = 'all';
 
 function renderAll() {
   if (!state.hotel) state.hotel = buildDefaultHotel();
+  // 旧缓存补齐酒店信息字段
+  const dh = buildDefaultHotel();
+  if (!('address' in state.hotel)) state.hotel.address = dh.address;
+  if (!('phone' in state.hotel)) state.hotel.phone = '';
+  if (!('highlights' in state.hotel)) state.hotel.highlights = dh.highlights;
   // 清理已下线阶段的遗留任务（如旧缓存中的「婚礼当天」）
   state.tasks = state.tasks.filter(t => STAGES.some(s => s.id === t.stageId));
   renderListHero();
@@ -1006,6 +1027,13 @@ function renderHotel() {
       '</div>' +
       '<div class="task-edit" style="color:rgba(255,255,255,.9)" onclick="openEditHotel()">✎</div>' +
     '</div></div>';
+  let info =
+    '<div class="info-row"><span class="info-label">地址</span><span class="info-text">' + esc(h.address || '未填写') + '</span></div>' +
+    '<div class="info-row" onclick="callHotel()"><span class="info-label">电话</span><span class="info-text' + (h.phone ? ' link' : '') + '">' + (h.phone ? esc(h.phone) + '（点击拨打）' : '未填写，点右上角 ✎ 补充') + '</span></div>';
+  (h.highlights || []).forEach(t => {
+    info += '<div class="info-row"><span class="info-label">亮点</span><span class="info-text">' + esc(t) + '</span></div>';
+  });
+  document.getElementById('hotel-info').innerHTML = info;
   let notes = '';
   (h.notes || []).forEach((n, i) => {
     notes += '<div class="note-item"><span class="note-dot">' + (i + 1) + '.</span><span>' + esc(n) + '</span></div>';
@@ -1033,6 +1061,10 @@ function openEditHotel() {
   openModal('修改酒店信息',
     '<label class="f-label">酒店名称</label>' +
     '<input class="f-input" id="nh-name" maxlength="30" value="' + esc(h.name) + '">' +
+    '<label class="f-label">酒店地址</label>' +
+    '<input class="f-input" id="nh-address" maxlength="60" value="' + esc(h.address || '') + '">' +
+    '<label class="f-label">联系电话</label>' +
+    '<input class="f-input" id="nh-phone" type="tel" maxlength="20" placeholder="例如：0371-xxxxxxxx" value="' + esc(h.phone || '') + '">' +
     '<label class="f-label">入住备注（每行一条）</label>' +
     '<textarea class="f-textarea" id="nh-notes" rows="3" placeholder="例如：尽量高楼层">' + esc((h.notes || []).join('\n')) + '</textarea>' +
     '<button class="btn-primary" onclick="submitEditHotel()">保存修改</button>');
@@ -1041,10 +1073,17 @@ function submitEditHotel() {
   const name = document.getElementById('nh-name').value.trim();
   if (!name) { showToast('请输入酒店名称'); return; }
   state.hotel.name = name;
+  state.hotel.address = document.getElementById('nh-address').value.trim();
+  state.hotel.phone = document.getElementById('nh-phone').value.trim();
   state.hotel.notes = document.getElementById('nh-notes').value.split('\n').map(s => s.trim()).filter(Boolean);
   closeModal();
   mutate();
   showToast('已修改');
+}
+function callHotel() {
+  const phone = state.hotel.phone;
+  if (!phone) { showToast('电话未填写，点酒店卡片右上角 ✎ 补充'); return; }
+  window.location.href = 'tel:' + phone;
 }
 
 let editGuestId = '';
