@@ -2,6 +2,9 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>备婚清单 · 王少松 & 夏梦颖</title>
 <link rel="manifest" href="manifest.json">
@@ -1309,7 +1312,7 @@ function resetTasks() {
   });
 }
 function resetExpenses() {
-  askConfirm('将删除全部支出记录，分类预算保留。', () => {
+  askConfirm('将删除全部支出记录。', () => {
     state.expenses = [];
     mutate();
     showToast('已清空支出记录');
