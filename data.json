@@ -84,6 +84,16 @@
     { "id": "task_88", "stageId": "g11", "title": "小镜子梳子口红", "desc": "", "done": false },
     { "id": "task_89", "stageId": "g11", "title": "橡皮筋", "desc": "", "done": false }
   ],
+  "hotel": {
+    "name": "登封市观嵩山假日酒店",
+    "notes": ["尽量高楼层", "房间不要靠近电梯井"],
+    "guests": [
+      { "id": "gst_1", "name": "李永鑫", "idNo": "410725199801239795", "dates": "2026.10.2", "room": "大床房", "days": 1, "count": 1, "note": "" },
+      { "id": "gst_2", "name": "李领领", "idNo": "412728199602280091", "dates": "2026.10.2", "room": "大床房", "days": 1, "count": 1, "note": "" },
+      { "id": "gst_3", "name": "王子昊", "idNo": "652301199804200814", "dates": "2026.10.1~10.2", "room": "大床房", "days": 2, "count": 1, "note": "" },
+      { "id": "gst_4", "name": "叔叔阿姨", "idNo": "", "dates": "2026.10.1~10.4", "room": "大床房 或者 标间", "days": 3, "count": 1, "note": "" }
+    ]
+  },
   "categories": [
     { "id": "venue", "name": "酒店婚宴", "planned": 60000 },
     { "id": "planner", "name": "婚庆策划", "planned": 25000 },
