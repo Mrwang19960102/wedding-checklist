@@ -646,15 +646,14 @@ function buildDefaultHotel() {
     highlights: ['2024 年开业 · 嵩山风景名胜区高档酒店榜 No.1', '两栋楼 616 张床位 · 餐饮位 1200 余 · 免费停车位 295 个'],
     notes: ['尽量高楼层', '房间不要靠近电梯井'],
     bookings: [
-      { id: 'bk_m1', room: '婚宴酒席', dates: '2026.10.3', nights: 1, count: 20, note: '4599/桌，含备 2 桌' },
-      { id: 'bk_m2', room: '客房', dates: '2026.10.1~10.2', nights: 1, count: 1, note: '2200 含伴娘住宿，付定金' },
+      { id: 'bk_1', name: '李永鑫', idNo: '410725199801239795', room: '大床房', dates: '2026.10.2', nights: 1, count: 1, note: '' },
+      { id: 'bk_2', name: '李领领', idNo: '412728199602280091', room: '大床房', dates: '2026.10.2', nights: 1, count: 1, note: '' },
+      { id: 'bk_3', name: '王子昊', idNo: '652301199804200814', room: '大床房', dates: '2026.10.1~10.2', nights: 2, count: 1, note: '' },
+      { id: 'bk_4', name: '叔叔阿姨', idNo: '', room: '大床房 或者 标间', dates: '2026.10.1~10.4', nights: 3, count: 1, note: '' },
+      { id: 'bk_5', room: '婚宴酒席', dates: '2026.10.3', nights: 1, count: 20, note: '4599/桌，含备 2 桌' },
+      { id: 'bk_6', room: '客房', dates: '2026.10.1~10.2', nights: 1, count: 1, note: '2200 含伴娘住宿，付定金' },
     ],
-    guests: [
-      { id: 'gst_1', name: '李永鑫', idNo: '410725199801239795', dates: '2026.10.2', room: '大床房', days: 1, count: 1, note: '' },
-      { id: 'gst_2', name: '李领领', idNo: '412728199602280091', dates: '2026.10.2', room: '大床房', days: 1, count: 1, note: '' },
-      { id: 'gst_3', name: '王子昊', idNo: '652301199804200814', dates: '2026.10.1~10.2', room: '大床房', days: 2, count: 1, note: '' },
-      { id: 'gst_4', name: '叔叔阿姨', idNo: '', dates: '2026.10.1~10.4', room: '大床房 或者 标间', days: 3, count: 1, note: '' },
-    ],
+    guests: [],
   };
 }
 function buildPickupHotel() {
@@ -860,6 +859,19 @@ function renderAll() {
     if (!mainHotel.bookings || !mainHotel.bookings.length) mainHotel.bookings = defHotel.bookings;
   }
   if (!state.hotels.find(h => h.id === 'hotel_pickup')) state.hotels.push(buildPickupHotel());
+  // v2 迁移：观嵩山酒店旧「入住名单」转为「预定信息」
+  if (!state.v || state.v < 2) {
+    const m = state.hotels.find(h => h.id === 'hotel_main');
+    if (m) {
+      const defIds = ['gst_1', 'gst_2', 'gst_3', 'gst_4'];
+      const gs = m.guests || [];
+      if (gs.length > 0 && gs.every(g => defIds.indexOf(g.id) !== -1)) {
+        m.bookings = buildDefaultHotel().bookings;
+        m.guests = [];
+      }
+    }
+    state.v = 2;
+  }
   state.hotels.forEach(h => {
     if (!('address' in h)) h.address = '';
     if (!('phone' in h)) h.phone = '';
@@ -1063,8 +1075,9 @@ function renderHotel() {
     let bk = '';
     (h.bookings || []).forEach(b => {
       bk += '<div class="guest-row"><div class="guest-info">' +
-        '<div class="guest-top"><span class="guest-name">' + esc(b.room) + '</span><span class="guest-room">' + b.nights + ' 晚 · ' + b.count + ' 间</span></div>' +
-        '<span class="guest-meta">' + esc(b.dates) + '</span>' +
+        '<div class="guest-top"><span class="guest-name">' + esc(b.name || b.room) + '</span><span class="guest-room">' + esc(b.room) + '</span></div>' +
+        '<span class="guest-meta">' + esc(b.dates) + ' · ' + b.nights + ' 晚 · ' + b.count + ' 间</span>' +
+        (b.idNo ? '<span class="guest-idno">' + esc(b.idNo) + '</span>' : '') +
         (b.note ? '<span class="guest-meta">' + esc(b.note) + '</span>' : '') +
         '</div>' +
         '<div class="exp-edit" onclick="openEditBooking(\'' + h.id + '\',\'' + b.id + '\')">✎</div>' +
@@ -1155,6 +1168,10 @@ function openBookingForm(hotelId, b) {
   bookingHotelId = hotelId;
   editBookingId = b ? b.id : '';
   openModal(b ? '修改预定' : '添加预定',
+    '<label class="f-label">姓名（可选）</label>' +
+    '<input class="f-input" id="nb-name" maxlength="20" placeholder="入住人姓名" value="' + (b ? esc(b.name || '') : '') + '">' +
+    '<label class="f-label">身份证号（可选）</label>' +
+    '<input class="f-input" id="nb-idno" maxlength="18" placeholder="用于酒店登记" value="' + (b ? esc(b.idNo || '') : '') + '">' +
     '<label class="f-label">房型</label>' +
     '<input class="f-input" id="nb-room" maxlength="20" placeholder="例如：总统套房" value="' + (b ? esc(b.room) : '') + '">' +
     '<div class="row2">' +
@@ -1174,6 +1191,8 @@ function submitBooking() {
   const room = document.getElementById('nb-room').value.trim();
   if (!room) { showToast('请输入房型'); return; }
   const rec = {
+    name: document.getElementById('nb-name').value.trim(),
+    idNo: document.getElementById('nb-idno').value.trim(),
     room: room,
     dates: document.getElementById('nb-dates').value.trim() || '待定',
     nights: Math.max(1, parseInt(document.getElementById('nb-nights').value, 10) || 1),
