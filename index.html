@@ -515,7 +515,6 @@ const STAGES = [
   { id: 'stage2', name: '核心预订', time: '婚前 6-3 个月' },
   { id: 'stage3', name: '细节落实', time: '婚前 3-1 个月' },
   { id: 'stage4', name: '冲刺准备', time: '婚前 1 个月内' },
-  { id: 'stage5', name: '婚礼当天', time: '婚礼当日' },
   { id: 'g1', name: '四大金刚', time: '' },
   { id: 'g2', name: '婚宴酒店', time: '' },
   { id: 'g3', name: '婚纱照', time: '' },
@@ -547,10 +546,6 @@ const RAW_TASKS = [
   ['stage4', '准备婚礼当天应急包', '别针、创可贴、吸管、备用丝袜等'],
   ['stage4', '与四大金刚最终对接', '确认时间、地点与流程细节'],
   ['stage4', '准备致辞与誓言', '父母致辞、新人誓言'],
-  ['stage5', '吃好早餐保持体力', '婚礼当天行程很满'],
-  ['stage5', '检查红包与戒指', '交给专人保管'],
-  ['stage5', '应急包随身备用', '交给伴娘保管'],
-  ['stage5', '放松心情，享受婚礼', '今天你们是主角'],
   // 四大金刚
   ['g1', '摄像双人 4200（定金）', '', 1],
   ['g1', '摄影双人 5800（定金）', '', 1],
@@ -844,6 +839,8 @@ let activeStage = 'all';
 
 function renderAll() {
   if (!state.hotel) state.hotel = buildDefaultHotel();
+  // 清理已下线阶段的遗留任务（如旧缓存中的「婚礼当天」）
+  state.tasks = state.tasks.filter(t => STAGES.some(s => s.id === t.stageId));
   renderListHero();
   renderStageFilter();
   renderStageList();
@@ -1291,7 +1288,7 @@ function submitEditBudget() {
 
 /* ================= 我的页 ================= */
 function resetTasks() {
-  if (!confirm('将恢复为系统预置的 82 项备婚清单，自定义事项与勾选状态会丢失。确定吗？')) return;
+  if (!confirm('将恢复为系统预置的 78 项备婚清单，自定义事项与勾选状态会丢失。确定吗？')) return;
   state.tasks = buildDefaultTasks();
   mutate();
   showToast('已恢复默认清单');
