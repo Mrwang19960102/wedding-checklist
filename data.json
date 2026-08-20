@@ -53,12 +53,7 @@
     { "id": "task_81", "stageId": "g10", "title": "礼盒本 / 笔", "desc": "", "done": false },
     { "id": "task_82", "stageId": "g10", "title": "誓言卡", "desc": "", "done": false },
     { "id": "task_83", "stageId": "g10", "title": "礼花", "desc": "", "done": false },
-    { "id": "task_84", "stageId": "g10", "title": "小区酒铺地毯（跟物业交代）", "desc": "", "done": false },
-    { "id": "task_85", "stageId": "g11", "title": "充电宝", "desc": "", "done": false },
-    { "id": "task_86", "stageId": "g11", "title": "纸巾、湿纸巾", "desc": "", "done": true },
-    { "id": "task_87", "stageId": "g11", "title": "口气清新剂", "desc": "", "done": false },
-    { "id": "task_88", "stageId": "g11", "title": "小镜子梳子口红", "desc": "", "done": false },
-    { "id": "task_89", "stageId": "g11", "title": "橡皮筋", "desc": "", "done": false }
+    { "id": "task_84", "stageId": "g10", "title": "小区酒铺地毯（跟物业交代）", "desc": "", "done": false }
   ],
   "hotel": {
     "name": "登封市观嵩山假日酒店",
