@@ -545,7 +545,6 @@ const STAGES = [
   { id: 'g8', name: '父母着装', time: '' },
   { id: 'g9', name: '婚房婚棚布置', time: '' },
   { id: 'g10', name: '婚礼仪式用品', time: '' },
-  { id: 'g11', name: '备用物品', time: '' },
 ];
 const RAW_TASKS = [
   ['stage2', '拍摄婚纱照', '提前选风格、定档期'],
@@ -609,12 +608,6 @@ const RAW_TASKS = [
   ['g10', '誓言卡', ''],
   ['g10', '礼花', ''],
   ['g10', '小区酒铺地毯（跟物业交代）', ''],
-  // 备用物品
-  ['g11', '充电宝', ''],
-  ['g11', '纸巾、湿纸巾', '', 1],
-  ['g11', '口气清新剂', ''],
-  ['g11', '小镜子梳子口红', ''],
-  ['g11', '橡皮筋', ''],
 ];
 function buildDefaultTasks() {
   return RAW_TASKS.map((t, i) => ({ id: 'task_' + (i + 1), stageId: t[0], title: t[1], desc: t[2] || '', done: !!t[3] }));
@@ -1309,7 +1302,7 @@ function submitNewExpense() {
 
 /* ================= 我的页 ================= */
 function resetTasks() {
-  askConfirm('将恢复为系统预置的 58 项备婚清单，自定义事项与勾选状态会丢失。', () => {
+  askConfirm('将恢复为系统预置的 53 项备婚清单，自定义事项与勾选状态会丢失。', () => {
     state.tasks = buildDefaultTasks();
     mutate();
     showToast('已恢复默认清单');
