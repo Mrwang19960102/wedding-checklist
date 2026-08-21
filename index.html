@@ -650,8 +650,6 @@ function buildDefaultHotel() {
       { id: 'bk_2', name: '李领领', idNo: '412728199602280091', room: '大床房', dates: '2026.10.2', nights: 1, count: 1, note: '' },
       { id: 'bk_3', name: '王子昊', idNo: '652301199804200814', room: '大床房', dates: '2026.10.1~10.2', nights: 2, count: 1, note: '' },
       { id: 'bk_4', name: '叔叔阿姨', idNo: '', room: '大床房 或者 标间', dates: '2026.10.1~10.4', nights: 3, count: 1, note: '' },
-      { id: 'bk_5', room: '婚宴酒席', dates: '2026.10.3', nights: 1, count: 20, note: '4599/桌，含备 2 桌' },
-      { id: 'bk_6', room: '客房', dates: '2026.10.1~10.2', nights: 1, count: 1, note: '2200 含伴娘住宿，付定金' },
     ],
     guests: [],
   };
@@ -871,6 +869,12 @@ function renderAll() {
       }
     }
     state.v = 2;
+  }
+  // v3 迁移：移除默认的婚宴酒席 / 客房两条预定
+  if (!state.v || state.v < 3) {
+    const m3 = state.hotels.find(h => h.id === 'hotel_main');
+    if (m3 && m3.bookings) m3.bookings = m3.bookings.filter(b => b.id !== 'bk_5' && b.id !== 'bk_6');
+    state.v = 3;
   }
   state.hotels.forEach(h => {
     if (!('address' in h)) h.address = '';
