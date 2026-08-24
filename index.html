@@ -636,7 +636,7 @@ function buildDefaultHotel() {
     tag: '亲戚入住酒店',
     name: '登封市观嵩山假日酒店',
     address: '登封市少林街道禅武大街1号（少林大道与禅武大街交叉口东南角）',
-    phone: '',
+    phone: '18037508002',
     highlights: ['2024 年开业 · 嵩山风景名胜区高档酒店榜 No.1', '两栋楼 616 张床位 · 餐饮位 1200 余 · 免费停车位 295 个'],
     notes: ['尽量高楼层', '房间不要靠近电梯井'],
     bookings: [
@@ -656,7 +656,9 @@ function buildPickupHotel() {
     tag: '接亲酒店',
     name: '中州国际少林大饭店',
     address: '登封市少林街道办事处禅武大街1号',
-    phone: '',
+    phone: '0371-65209666',
+    lng: 113.008441,
+    lat: 34.465895,
     highlights: ['少林禅宗文化主题 · 五钻标准建设', '819㎡ 豪华无柱宴会厅 · 餐饮包房 10 个'],
     notes: [
       '避免在墙上、天花、壁画上贴强力胶类（双面胶、泡沫胶、透明胶带等），撕下时易损坏墙面涂层；可使用「点胶」等粘性较弱的胶状物，或采用无痕挂钩悬挂轻量装饰品',
@@ -888,6 +890,19 @@ function renderAll() {
     };
     state.tasks.forEach(t => { if (catMap[t.stageId]) t.stageId = catMap[t.stageId]; });
     state.v = 5;
+  }
+  // v6 迁移：补充酒店公开联系方式 / 坐标
+  if (!state.v || state.v < 6) {
+    const dm = buildDefaultHotel();
+    const dp = buildPickupHotel();
+    const hm = state.hotels.find(h => h.id === 'hotel_main');
+    if (hm && !hm.phone) hm.phone = dm.phone;
+    const hp = state.hotels.find(h => h.id === 'hotel_pickup');
+    if (hp) {
+      if (!hp.phone) hp.phone = dp.phone;
+      if (!hp.lng) { hp.lng = dp.lng; hp.lat = dp.lat; }
+    }
+    state.v = 6;
   }
   state.hotels.forEach(h => {
     if (!('address' in h)) h.address = '';
@@ -1166,9 +1181,16 @@ function callHotel(id) {
 function openMap(id) {
   const h = findHotel(id);
   if (!h || !h.address) { showToast('地址未填写'); return; }
-  // 高德官方调起链接：已装 App 尝试直接打开，否则打开网页版地图
-  const url = 'https://uri.amap.com/search?keyword=' + encodeURIComponent(h.name) +
-    '&city=' + encodeURIComponent('登封') + '&callnative=1&src=wedding_checklist';
+  let url;
+  if (h.lng && h.lat) {
+    // 有精确坐标：直接打开高德地图标记点，可一键导航
+    url = 'https://uri.amap.com/marker?position=' + h.lng + ',' + h.lat +
+      '&name=' + encodeURIComponent(h.name) + '&callnative=1&src=wedding_checklist';
+  } else {
+    // 无坐标：高德搜索调起链接
+    url = 'https://uri.amap.com/search?keyword=' + encodeURIComponent(h.name) +
+      '&city=' + encodeURIComponent('登封') + '&callnative=1&src=wedding_checklist';
+  }
   window.location.href = url;
 }
 
