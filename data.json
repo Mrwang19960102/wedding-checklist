@@ -1,59 +1,381 @@
 {
-  "profile": { "groomName": "王少松", "brideName": "夏梦颖", "weddingDate": "2026-10-03" },
+  "profile": {
+    "groomName": "王少松",
+    "brideName": "夏梦颖",
+    "weddingDate": "2026-10-03"
+  },
   "tasks": [
-    { "id": "task_8", "stageId": "stage2", "title": "拍摄婚纱照", "desc": "提前选风格、定档期", "done": false },
-    { "id": "task_9", "stageId": "stage2", "title": "挑选婚纱礼服与西装", "desc": "主纱、出门纱、敬酒服与新郎西装", "done": false },
-    { "id": "task_10", "stageId": "stage2", "title": "预订司仪、跟妆、摄影摄像", "desc": "四大金刚尽早锁定档期", "done": false },
-    { "id": "task_11", "stageId": "stage2", "title": "选购或定制婚戒", "desc": "对戒与钻戒", "done": false },
-    { "id": "task_12", "stageId": "stage2", "title": "确定伴郎伴娘人选", "desc": "提前沟通服装与分工", "done": false },
-    { "id": "task_13", "stageId": "stage2", "title": "蜜月旅行初步规划", "desc": "目的地、签证与假期安排", "done": false },
-    { "id": "task_30", "stageId": "g1", "title": "摄像双人 4200（定金）", "desc": "", "done": true },
-    { "id": "task_31", "stageId": "g1", "title": "摄影双人 5800（定金）", "desc": "", "done": true },
-    { "id": "task_32", "stageId": "g1", "title": "化妆师 2800（未试妆）", "desc": "", "done": true },
-    { "id": "task_33", "stageId": "g1", "title": "主持 3000（未沟通）", "desc": "", "done": false },
-    { "id": "task_42", "stageId": "g4", "title": "陪嫁床品（6 铺 6 盖）1w", "desc": "", "done": false },
-    { "id": "task_43", "stageId": "g4", "title": "陪嫁小家电（给新家添置）", "desc": "", "done": false },
-    { "id": "task_44", "stageId": "g4", "title": "陪嫁箱 388", "desc": "", "done": true },
-    { "id": "task_45", "stageId": "g4", "title": "红色情侣睡衣 240", "desc": "", "done": false },
-    { "id": "task_46", "stageId": "g4", "title": "红色情侣棉袍 50", "desc": "", "done": false },
-    { "id": "task_47", "stageId": "g4", "title": "陪嫁日用品 108（牙刷、毛巾、漱口杯、化妆）", "desc": "", "done": false },
-    { "id": "task_48", "stageId": "g4", "title": "妆镜、梳子、皂盒、喜盆、保温壶 ×2", "desc": "", "done": false },
-    { "id": "task_49", "stageId": "g4", "title": "陪嫁子孙桶、长明灯、针线盒", "desc": "", "done": false },
-    { "id": "task_50", "stageId": "g4", "title": "陪嫁新衣服", "desc": "", "done": false },
-    { "id": "task_51", "stageId": "g5", "title": "婚纱礼服 5999（含主纱、出门纱、秀禾、敬酒服、回门衣服自备、晨袍）", "desc": "", "done": false },
-    { "id": "task_52", "stageId": "g5", "title": "婚鞋 ×2（白色、红色）", "desc": "", "done": true },
-    { "id": "task_53", "stageId": "g5", "title": "婚服（容量大）", "desc": "", "done": false },
-    { "id": "task_54", "stageId": "g5", "title": "美甲、美睫", "desc": "", "done": false },
-    { "id": "task_55", "stageId": "g5", "title": "身体护理", "desc": "", "done": false },
-    { "id": "task_56", "stageId": "g5", "title": "美甲、染发、脱毛膏", "desc": "", "done": false },
-    { "id": "task_57", "stageId": "g5", "title": "皮肤管理", "desc": "", "done": false },
-    { "id": "task_58", "stageId": "g5", "title": "接亲拍照道具（团扇等）", "desc": "", "done": true },
-    { "id": "task_59", "stageId": "g6", "title": "西装套装（已网购已试）", "desc": "", "done": true },
-    { "id": "task_60", "stageId": "g6", "title": "皮鞋、皮带、袜子", "desc": "", "done": false },
-    { "id": "task_61", "stageId": "g6", "title": "胸花手捧花（花艺一起）", "desc": "", "done": false },
-    { "id": "task_62", "stageId": "g7", "title": "伴手礼（6 份）", "desc": "", "done": false },
-    { "id": "task_63", "stageId": "g7", "title": "伴娘服、伴郎服（婚纱店赠送）", "desc": "", "done": true },
-    { "id": "task_64", "stageId": "g8", "title": "双方父亲西装、领带、皮鞋", "desc": "", "done": false },
-    { "id": "task_65", "stageId": "g8", "title": "双方母亲礼服、鞋子、配饰", "desc": "", "done": false },
-    { "id": "task_66", "stageId": "g8", "title": "妈妈婆婆包", "desc": "", "done": false },
-    { "id": "task_67", "stageId": "g8", "title": "父母胸花", "desc": "", "done": false },
-    { "id": "task_68", "stageId": "g9", "title": "红色四件套（出嫁卧室、新房卧室）", "desc": "", "done": false },
-    { "id": "task_69", "stageId": "g9", "title": "喜字贴（多备，注意用胶）", "desc": "", "done": true },
-    { "id": "task_70", "stageId": "g9", "title": "红色喜字桌布、桌旗", "desc": "", "done": false },
-    { "id": "task_71", "stageId": "g9", "title": "喜字抱枕、压床娃娃", "desc": "", "done": true },
-    { "id": "task_72", "stageId": "g9", "title": "喜字纸杯碗筷", "desc": "", "done": false },
-    { "id": "task_73", "stageId": "g9", "title": "结婚气球花", "desc": "", "done": false },
-    { "id": "task_74", "stageId": "g9", "title": "婚房装饰花", "desc": "", "done": true },
-    { "id": "task_75", "stageId": "g9", "title": "喜字拖鞋", "desc": "", "done": false },
-    { "id": "task_76", "stageId": "g10", "title": "敬茶杯、跪垫、喜碗", "desc": "", "done": false },
-    { "id": "task_77", "stageId": "g10", "title": "结婚仪式对接", "desc": "", "done": false },
-    { "id": "task_78", "stageId": "g10", "title": "仿真金首饰", "desc": "", "done": true },
-    { "id": "task_79", "stageId": "g10", "title": "互动游戏礼品、小红包", "desc": "", "done": false },
-    { "id": "task_80", "stageId": "g10", "title": "碰杯牌（婚宴酒店送）", "desc": "", "done": true },
-    { "id": "task_81", "stageId": "g10", "title": "礼盒本 / 笔", "desc": "", "done": false },
-    { "id": "task_82", "stageId": "g10", "title": "誓言卡", "desc": "", "done": false },
-    { "id": "task_83", "stageId": "g10", "title": "礼花", "desc": "", "done": false },
-    { "id": "task_84", "stageId": "g10", "title": "小区酒铺地毯（跟物业交代）", "desc": "", "done": false }
+    {
+      "id": "task_8",
+      "stageId": "pub",
+      "title": "拍摄婚纱照",
+      "desc": "提前选风格、定档期",
+      "done": false
+    },
+    {
+      "id": "task_9",
+      "stageId": "pub",
+      "title": "挑选婚纱礼服与西装",
+      "desc": "主纱、出门纱、敬酒服与新郎西装",
+      "done": false
+    },
+    {
+      "id": "task_10",
+      "stageId": "pub",
+      "title": "预订司仪、跟妆、摄影摄像",
+      "desc": "四大金刚尽早锁定档期",
+      "done": false
+    },
+    {
+      "id": "task_11",
+      "stageId": "pub",
+      "title": "选购或定制婚戒",
+      "desc": "对戒与钻戒",
+      "done": false
+    },
+    {
+      "id": "task_12",
+      "stageId": "pub",
+      "title": "确定伴郎伴娘人选",
+      "desc": "提前沟通服装与分工",
+      "done": false
+    },
+    {
+      "id": "task_13",
+      "stageId": "pub",
+      "title": "蜜月旅行初步规划",
+      "desc": "目的地、签证与假期安排",
+      "done": false
+    },
+    {
+      "id": "task_30",
+      "stageId": "pub",
+      "title": "摄像双人 4200（定金）",
+      "desc": "",
+      "done": true
+    },
+    {
+      "id": "task_31",
+      "stageId": "pub",
+      "title": "摄影双人 5800（定金）",
+      "desc": "",
+      "done": true
+    },
+    {
+      "id": "task_32",
+      "stageId": "pub",
+      "title": "化妆师 2800（未试妆）",
+      "desc": "",
+      "done": true
+    },
+    {
+      "id": "task_33",
+      "stageId": "pub",
+      "title": "主持 3000（未沟通）",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_42",
+      "stageId": "bride",
+      "title": "陪嫁床品（6 铺 6 盖）1w",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_43",
+      "stageId": "bride",
+      "title": "陪嫁小家电（给新家添置）",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_44",
+      "stageId": "bride",
+      "title": "陪嫁箱 388",
+      "desc": "",
+      "done": true
+    },
+    {
+      "id": "task_45",
+      "stageId": "bride",
+      "title": "红色情侣睡衣 240",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_46",
+      "stageId": "bride",
+      "title": "红色情侣棉袍 50",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_47",
+      "stageId": "bride",
+      "title": "陪嫁日用品 108（牙刷、毛巾、漱口杯、化妆）",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_48",
+      "stageId": "bride",
+      "title": "妆镜、梳子、皂盒、喜盆、保温壶 ×2",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_49",
+      "stageId": "bride",
+      "title": "陪嫁子孙桶、长明灯、针线盒",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_50",
+      "stageId": "bride",
+      "title": "陪嫁新衣服",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_51",
+      "stageId": "bride",
+      "title": "婚纱礼服 5999（含主纱、出门纱、秀禾、敬酒服、回门衣服自备、晨袍）",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_52",
+      "stageId": "bride",
+      "title": "婚鞋 ×2（白色、红色）",
+      "desc": "",
+      "done": true
+    },
+    {
+      "id": "task_53",
+      "stageId": "bride",
+      "title": "婚服（容量大）",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_54",
+      "stageId": "bride",
+      "title": "美甲、美睫",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_55",
+      "stageId": "bride",
+      "title": "身体护理",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_56",
+      "stageId": "bride",
+      "title": "美甲、染发、脱毛膏",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_57",
+      "stageId": "bride",
+      "title": "皮肤管理",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_58",
+      "stageId": "bride",
+      "title": "接亲拍照道具（团扇等）",
+      "desc": "",
+      "done": true
+    },
+    {
+      "id": "task_59",
+      "stageId": "groom",
+      "title": "西装套装（已网购已试）",
+      "desc": "",
+      "done": true
+    },
+    {
+      "id": "task_60",
+      "stageId": "groom",
+      "title": "皮鞋、皮带、袜子",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_61",
+      "stageId": "groom",
+      "title": "胸花手捧花（花艺一起）",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_62",
+      "stageId": "pub",
+      "title": "伴手礼（6 份）",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_63",
+      "stageId": "pub",
+      "title": "伴娘服、伴郎服（婚纱店赠送）",
+      "desc": "",
+      "done": true
+    },
+    {
+      "id": "task_64",
+      "stageId": "pub",
+      "title": "双方父亲西装、领带、皮鞋",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_65",
+      "stageId": "pub",
+      "title": "双方母亲礼服、鞋子、配饰",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_66",
+      "stageId": "pub",
+      "title": "妈妈婆婆包",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_67",
+      "stageId": "pub",
+      "title": "父母胸花",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_68",
+      "stageId": "pub",
+      "title": "红色四件套（出嫁卧室、新房卧室）",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_69",
+      "stageId": "pub",
+      "title": "喜字贴（多备，注意用胶）",
+      "desc": "",
+      "done": true
+    },
+    {
+      "id": "task_70",
+      "stageId": "pub",
+      "title": "红色喜字桌布、桌旗",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_71",
+      "stageId": "pub",
+      "title": "喜字抱枕、压床娃娃",
+      "desc": "",
+      "done": true
+    },
+    {
+      "id": "task_72",
+      "stageId": "pub",
+      "title": "喜字纸杯碗筷",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_73",
+      "stageId": "pub",
+      "title": "结婚气球花",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_74",
+      "stageId": "pub",
+      "title": "婚房装饰花",
+      "desc": "",
+      "done": true
+    },
+    {
+      "id": "task_75",
+      "stageId": "pub",
+      "title": "喜字拖鞋",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_76",
+      "stageId": "pub",
+      "title": "敬茶杯、跪垫、喜碗",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_77",
+      "stageId": "pub",
+      "title": "结婚仪式对接",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_78",
+      "stageId": "pub",
+      "title": "仿真金首饰",
+      "desc": "",
+      "done": true
+    },
+    {
+      "id": "task_79",
+      "stageId": "pub",
+      "title": "互动游戏礼品、小红包",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_80",
+      "stageId": "pub",
+      "title": "碰杯牌（婚宴酒店送）",
+      "desc": "",
+      "done": true
+    },
+    {
+      "id": "task_81",
+      "stageId": "pub",
+      "title": "礼盒本 / 笔",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_82",
+      "stageId": "pub",
+      "title": "誓言卡",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_83",
+      "stageId": "pub",
+      "title": "礼花",
+      "desc": "",
+      "done": false
+    },
+    {
+      "id": "task_84",
+      "stageId": "pub",
+      "title": "小区酒铺地毯（跟物业交代）",
+      "desc": "",
+      "done": false
+    }
   ],
   "hotels": [
     {
@@ -62,15 +384,71 @@
       "name": "登封市观嵩山假日酒店",
       "address": "登封市少林街道禅武大街1号（少林大道与禅武大街交叉口东南角）",
       "phone": "",
-      "highlights": ["2024 年开业 · 嵩山风景名胜区高档酒店榜 No.1", "两栋楼 616 张床位 · 餐饮位 1200 余 · 免费停车位 295 个"],
-      "notes": ["尽量高楼层", "房间不要靠近电梯井"],
+      "highlights": [
+        "2024 年开业 · 嵩山风景名胜区高档酒店榜 No.1",
+        "两栋楼 616 张床位 · 餐饮位 1200 余 · 免费停车位 295 个"
+      ],
+      "notes": [
+        "尽量高楼层",
+        "房间不要靠近电梯井"
+      ],
       "bookings": [
-        { "id": "bk_1", "name": "李永鑫", "idNo": "410725199801239795", "room": "大床房", "dates": "2026.10.2", "nights": 1, "count": 1, "note": "" },
-        { "id": "bk_2", "name": "李领领", "idNo": "412728199602280091", "room": "大床房", "dates": "2026.10.2", "nights": 1, "count": 1, "note": "" },
-        { "id": "bk_3", "name": "王子昊", "idNo": "652301199804200814", "room": "大床房", "dates": "2026.10.1~10.2", "nights": 2, "count": 1, "note": "" },
-        { "id": "bk_4", "name": "叔叔阿姨", "idNo": "", "room": "大床房 或者 标间", "dates": "2026.10.1~10.4", "nights": 3, "count": 1, "note": "" },
-        { "id": "bk_5", "room": "婚宴酒席", "dates": "2026.10.3", "nights": 1, "count": 20, "note": "4599/桌，含备 2 桌" },
-        { "id": "bk_6", "room": "客房", "dates": "2026.10.1~10.2", "nights": 1, "count": 1, "note": "2200 含伴娘住宿，付定金" }
+        {
+          "id": "bk_1",
+          "name": "李永鑫",
+          "idNo": "410725199801239795",
+          "room": "大床房",
+          "dates": "2026.10.2",
+          "nights": 1,
+          "count": 1,
+          "note": ""
+        },
+        {
+          "id": "bk_2",
+          "name": "李领领",
+          "idNo": "412728199602280091",
+          "room": "大床房",
+          "dates": "2026.10.2",
+          "nights": 1,
+          "count": 1,
+          "note": ""
+        },
+        {
+          "id": "bk_3",
+          "name": "王子昊",
+          "idNo": "652301199804200814",
+          "room": "大床房",
+          "dates": "2026.10.1~10.2",
+          "nights": 2,
+          "count": 1,
+          "note": ""
+        },
+        {
+          "id": "bk_4",
+          "name": "叔叔阿姨",
+          "idNo": "",
+          "room": "大床房 或者 标间",
+          "dates": "2026.10.1~10.4",
+          "nights": 3,
+          "count": 1,
+          "note": ""
+        },
+        {
+          "id": "bk_5",
+          "room": "婚宴酒席",
+          "dates": "2026.10.3",
+          "nights": 1,
+          "count": 20,
+          "note": "4599/桌，含备 2 桌"
+        },
+        {
+          "id": "bk_6",
+          "room": "客房",
+          "dates": "2026.10.1~10.2",
+          "nights": 1,
+          "count": 1,
+          "note": "2200 含伴娘住宿，付定金"
+        }
       ],
       "guests": []
     },
@@ -80,7 +458,10 @@
       "name": "中州国际少林大饭店",
       "address": "登封市少林街道办事处禅武大街1号",
       "phone": "",
-      "highlights": ["少林禅宗文化主题 · 五钻标准建设", "819㎡ 豪华无柱宴会厅 · 餐饮包房 10 个"],
+      "highlights": [
+        "少林禅宗文化主题 · 五钻标准建设",
+        "819㎡ 豪华无柱宴会厅 · 餐饮包房 10 个"
+      ],
       "notes": [
         "避免在墙上、天花、壁画上贴强力胶类（双面胶、泡沫胶、透明胶带等），撕下时易损坏墙面涂层；可使用「点胶」等粘性较弱的胶状物，或采用无痕挂钩悬挂轻量装饰品",
         "不要在家具上使用尖锐物品固定装饰，如用图钉固定丝带等",
@@ -88,27 +469,98 @@
         "不要在电器设备上悬挂重物或粘贴装饰品，以免影响正常运行或造成外观损坏"
       ],
       "bookings": [
-        { "id": "bk_1", "room": "总统套房", "dates": "2026.10.2~2026.10.3", "nights": 1, "count": 1, "note": "接亲用" }
+        {
+          "id": "bk_1",
+          "room": "总统套房",
+          "dates": "2026.10.2~2026.10.3",
+          "nights": 1,
+          "count": 1,
+          "note": "接亲用"
+        }
       ],
       "guests": []
     }
   ],
   "categories": [
-    { "id": "venue", "name": "酒店婚宴", "planned": 60000 },
-    { "id": "planner", "name": "婚庆策划", "planned": 25000 },
-    { "id": "photo", "name": "婚纱摄影", "planned": 8000 },
-    { "id": "dress", "name": "婚纱礼服", "planned": 15000 },
-    { "id": "jewelry", "name": "戒指珠宝", "planned": 20000 },
-    { "id": "beauty", "name": "跟妆造型", "planned": 5000 },
-    { "id": "shoot", "name": "婚礼跟拍", "planned": 8000 },
-    { "id": "flower", "name": "鲜花布置", "planned": 8000 },
-    { "id": "honeymoon", "name": "蜜月旅行", "planned": 15000 },
-    { "id": "other", "name": "其他支出", "planned": 6000 }
+    {
+      "id": "venue",
+      "name": "酒店婚宴",
+      "planned": 60000
+    },
+    {
+      "id": "planner",
+      "name": "婚庆策划",
+      "planned": 25000
+    },
+    {
+      "id": "photo",
+      "name": "婚纱摄影",
+      "planned": 8000
+    },
+    {
+      "id": "dress",
+      "name": "婚纱礼服",
+      "planned": 15000
+    },
+    {
+      "id": "jewelry",
+      "name": "戒指珠宝",
+      "planned": 20000
+    },
+    {
+      "id": "beauty",
+      "name": "跟妆造型",
+      "planned": 5000
+    },
+    {
+      "id": "shoot",
+      "name": "婚礼跟拍",
+      "planned": 8000
+    },
+    {
+      "id": "flower",
+      "name": "鲜花布置",
+      "planned": 8000
+    },
+    {
+      "id": "honeymoon",
+      "name": "蜜月旅行",
+      "planned": 15000
+    },
+    {
+      "id": "other",
+      "name": "其他支出",
+      "planned": 6000
+    }
   ],
   "expenses": [
-    { "id": "exp_1", "categoryId": "venue", "title": "婚宴定金", "amount": 20000, "date": "2026-07-06" },
-    { "id": "exp_2", "categoryId": "photo", "title": "婚纱照套餐定金", "amount": 3000, "date": "2026-07-20" },
-    { "id": "exp_3", "categoryId": "jewelry", "title": "结婚对戒", "amount": 9800, "date": "2026-08-05" },
-    { "id": "exp_4", "categoryId": "dress", "title": "出门纱租赁定金", "amount": 1500, "date": "2026-08-12" }
+    {
+      "id": "exp_1",
+      "categoryId": "venue",
+      "title": "婚宴定金",
+      "amount": 20000,
+      "date": "2026-07-06"
+    },
+    {
+      "id": "exp_2",
+      "categoryId": "photo",
+      "title": "婚纱照套餐定金",
+      "amount": 3000,
+      "date": "2026-07-20"
+    },
+    {
+      "id": "exp_3",
+      "categoryId": "jewelry",
+      "title": "结婚对戒",
+      "amount": 9800,
+      "date": "2026-08-05"
+    },
+    {
+      "id": "exp_4",
+      "categoryId": "dress",
+      "title": "出门纱租赁定金",
+      "amount": 1500,
+      "date": "2026-08-12"
+    }
   ]
 }
