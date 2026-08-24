@@ -650,6 +650,8 @@ function buildDefaultHotel() {
       { id: 'bk_2', name: '李领领', idNo: '412728199602280091', room: '大床房', dates: '2026.10.2', nights: 1, count: 1, note: '' },
       { id: 'bk_3', name: '王子昊', idNo: '652301199804200814', room: '大床房', dates: '2026.10.1~10.2', nights: 2, count: 1, note: '' },
       { id: 'bk_4', name: '叔叔阿姨', idNo: '', room: '大床房 或者 标间', dates: '2026.10.1~10.4', nights: 3, count: 1, note: '' },
+      { id: 'bk_5', room: '婚宴酒席', dates: '2026.10.3', nights: 1, count: 20, note: '4599/桌，含备 2 桌' },
+      { id: 'bk_6', room: '客房', dates: '2026.10.1~10.2', nights: 1, count: 1, note: '2200 含伴娘住宿，付定金' },
     ],
     guests: [],
   };
@@ -662,7 +664,12 @@ function buildPickupHotel() {
     address: '登封市少林街道办事处禅武大街1号',
     phone: '',
     highlights: ['少林禅宗文化主题 · 五钻标准建设', '819㎡ 豪华无柱宴会厅 · 餐饮包房 10 个'],
-    notes: [],
+    notes: [
+      '避免在墙上、天花、壁画上贴强力胶类（双面胶、泡沫胶、透明胶带等），撕下时易损坏墙面涂层；可使用「点胶」等粘性较弱的胶状物，或采用无痕挂钩悬挂轻量装饰品',
+      '不要在家具上使用尖锐物品固定装饰，如用图钉固定丝带等',
+      '木质家具避免将潮湿或带颜色的物品直接放置其上，以防水渍或染色',
+      '不要在电器设备上悬挂重物或粘贴装饰品，以免影响正常运行或造成外观损坏',
+    ],
     bookings: [
       { id: 'bk_1', room: '总统套房', dates: '2026.10.2~2026.10.3', nights: 1, count: 1, note: '接亲用' },
     ],
@@ -870,11 +877,13 @@ function renderAll() {
     }
     state.v = 2;
   }
-  // v3 迁移：移除默认的婚宴酒席 / 客房两条预定
-  if (!state.v || state.v < 3) {
-    const m3 = state.hotels.find(h => h.id === 'hotel_main');
-    if (m3 && m3.bookings) m3.bookings = m3.bookings.filter(b => b.id !== 'bk_5' && b.id !== 'bk_6');
-    state.v = 3;
+  // v4 迁移：接亲酒店补充婚房布置注意事项；清理婚宴酒席/客房默认预定
+  if (!state.v || state.v < 4) {
+    const pk = state.hotels.find(h => h.id === 'hotel_pickup');
+    if (pk && (!pk.notes || !pk.notes.length)) pk.notes = buildPickupHotel().notes;
+    const m4 = state.hotels.find(h => h.id === 'hotel_main');
+    if (m4 && m4.bookings) m4.bookings = m4.bookings.filter(b => b.id !== 'bk_5' && b.id !== 'bk_6');
+    state.v = 4;
   }
   state.hotels.forEach(h => {
     if (!('address' in h)) h.address = '';
