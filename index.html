@@ -148,6 +148,7 @@
   .stage-name { font-size: 15px; font-weight: 600; }
   .stage-time { font-size: 11px; color: var(--text3); margin-left: 8px; flex-shrink: 0; }
   .stage-count { font-size: 12px; color: var(--text3); flex-shrink: 0; }
+  .zone-head { margin: 18px 4px 2px; font-size: 15px; font-weight: 700; }
   .task-list { margin-top: 12px; }
   .task {
     display: flex; align-items: flex-start;
@@ -422,8 +423,15 @@
   </div>
 
   <main>
+    <!-- 装饰 -->
+    <section id="view-decor" class="view active">
+      <div id="decor-hero"></div>
+      <div id="decor-wrap"></div>
+      <button class="fab" onclick="openAddDecor()">+</button>
+    </section>
+
     <!-- 清单 -->
-    <section id="view-list" class="view active">
+    <section id="view-list" class="view">
       <div id="list-hero"></div>
       <div class="chips-scroll"><div class="chips-row" id="stage-filter"></div></div>
       <div id="stage-list"></div>
@@ -489,7 +497,11 @@
   </main>
 
   <nav class="tabbar">
-    <button class="tab active" data-tab="list" onclick="switchTab('list')">
+    <button class="tab active" data-tab="decor" onclick="switchTab('decor')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.4z"/><path d="M18.5 14.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"/><path d="M6 16.5l.7 1.6 1.6.7-1.6.7-.7 1.6-.7-1.6-1.6-.7 1.6-.7z"/></svg>
+      装饰
+    </button>
+    <button class="tab" data-tab="list" onclick="switchTab('list')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4.5" width="14" height="16.5" rx="2.5"/><rect x="9" y="2.5" width="6" height="3.5" rx="1.2"/><path d="M8.5 13.2l2.4 2.4 4.6-4.8"/></svg>
       清单
     </button>
@@ -567,6 +579,7 @@ const DEFAULT_DATA = {
   categories: buildDefaultCategories(),
   expenses: buildDefaultExpenses(),
   hotels: [buildDefaultHotel(), buildPickupHotel()],
+  decor: { tasks: [] },
 };
 function buildDefaultHotel() {
   return {
@@ -582,8 +595,6 @@ function buildDefaultHotel() {
       { id: 'bk_2', name: '李领领', idNo: '412728199602280091', room: '大床房', dates: '2026.10.2', nights: 1, count: 1, note: '' },
       { id: 'bk_3', name: '王子昊', idNo: '652301199804200814', room: '大床房', dates: '2026.10.1~10.2', nights: 2, count: 1, note: '' },
       { id: 'bk_4', name: '叔叔阿姨', idNo: '', room: '大床房 或者 标间', dates: '2026.10.1~10.4', nights: 3, count: 1, note: '' },
-      { id: 'bk_5', room: '婚宴酒席', dates: '2026.10.3', nights: 1, count: 20, note: '4599/桌，含备 2 桌' },
-      { id: 'bk_6', room: '客房', dates: '2026.10.1~10.2', nights: 1, count: 1, note: '2200 含伴娘住宿，付定金' },
     ],
     guests: [],
   };
@@ -857,6 +868,7 @@ function renderAll() {
   });
   // 清理已下线阶段的遗留任务（如旧缓存中的「婚礼当天」）
   state.tasks = state.tasks.filter(t => STAGES.some(s => s.id === t.stageId));
+  renderDecor();
   renderListHero();
   renderStageFilter();
   renderStageList();
@@ -1471,6 +1483,127 @@ function resetAll() {
     mutate();
     showToast('已重置全部数据');
   });
+}
+
+/* ================= 装饰模块 ================= */
+const DECOR_GROUPS = [
+  { id: 'dg_master', zone: 'in', name: '主婚房' },
+  { id: 'dg_living', zone: 'in', name: '客厅' },
+  { id: 'dg_sister', zone: 'in', name: '妹妹房间' },
+  { id: 'dg_parents', zone: 'in', name: '爸妈房间' },
+  { id: 'dg_hotel', zone: 'in', name: '酒店接亲房间' },
+  { id: 'dg_welcome', zone: 'out', name: '迎宾展' },
+  { id: 'dg_wall', zone: 'out', name: '外墙' },
+];
+let editDecorId = '';
+let modalDecorGroup = 'dg_master';
+
+function renderDecor() {
+  if (!state.decor) state.decor = { tasks: [] };
+  const total = state.decor.tasks.length;
+  const done = state.decor.tasks.filter(t => t.done).length;
+  const percent = total > 0 ? Math.round(done / total * 100) : 0;
+  document.getElementById('decor-hero').innerHTML =
+    '<div class="hero">' +
+      '<div class="hero-top">' +
+        '<div style="flex:1;min-width:0">' +
+          '<div class="hero-names">婚房装饰</div>' +
+          '<div class="hero-date">家庭内部 · 外部装饰清单</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="hero-divider"></div>' +
+      '<div class="hero-progress-info"><span>装饰进度</span><span>' + done + '/' + total + ' 项 · ' + percent + '%</span></div>' +
+      '<div class="track white" style="height:7px"><div class="bar" style="width:' + percent + '%"></div></div>' +
+    '</div>';
+  let html = '';
+  [['in', '家庭内部装饰'], ['out', '家庭外部装饰']].forEach(z => {
+    html += '<div class="zone-head">' + z[1] + '</div>';
+    DECOR_GROUPS.filter(g => g.zone === z[0]).forEach(g => {
+      const tasks = state.decor.tasks.filter(t => t.groupId === g.id);
+      const gdone = tasks.filter(t => t.done).length;
+      html += '<div class="card">' +
+        '<div class="stage-head">' +
+          '<div class="stage-title-wrap"><span class="stage-dot"></span><span class="stage-name">' + g.name + '</span></div>' +
+          '<span class="stage-count">' + gdone + '/' + tasks.length + '</span>' +
+        '</div>' +
+        '<div class="task-list">';
+      if (tasks.length === 0) {
+        html += '<span class="empty-tip">暂无装饰事项，点击右下角「+」添加</span>';
+      } else {
+        tasks.forEach(t => {
+          html += '<div class="task' + (t.done ? ' done' : '') + '">' +
+            '<div class="checkbox' + (t.done ? ' done' : '') + '" onclick="toggleDecor(\'' + t.id + '\')">✓</div>' +
+            '<div class="task-content" onclick="toggleDecor(\'' + t.id + '\')">' +
+              '<div class="task-title-row"><span class="task-title">' + esc(t.title) + '</span></div>' +
+              (t.desc ? '<span class="task-desc">' + esc(t.desc) + '</span>' : '') +
+            '</div>' +
+            '<div class="task-edit" onclick="openEditDecor(\'' + t.id + '\')">✎</div>' +
+            '<div class="task-del" onclick="deleteDecor(\'' + t.id + '\')">✕</div>' +
+          '</div>';
+        });
+      }
+      html += '</div></div>';
+    });
+  });
+  document.getElementById('decor-wrap').innerHTML = html;
+}
+function toggleDecor(id) {
+  const t = state.decor.tasks.find(x => x.id === id);
+  if (!t) return;
+  t.done = !t.done;
+  mutate();
+}
+function deleteDecor(id) {
+  askConfirm('确定要删除这条装饰事项吗？', () => {
+    state.decor.tasks = state.decor.tasks.filter(t => t.id !== id);
+    mutate();
+    showToast('已删除');
+  });
+}
+function openAddDecor() { openDecorForm(null); }
+function openEditDecor(id) {
+  const t = state.decor.tasks.find(x => x.id === id);
+  if (t) openDecorForm(t);
+}
+function openDecorForm(t) {
+  editDecorId = t ? t.id : '';
+  modalDecorGroup = t ? t.groupId : 'dg_master';
+  let chips = '';
+  DECOR_GROUPS.forEach(g => {
+    chips += '<button class="chip form' + (g.id === modalDecorGroup ? ' active' : '') + '" data-dg="' + g.id + '" onclick="pickDecorGroup(\'' + g.id + '\')">' + g.name + '</button>';
+  });
+  openModal(t ? '修改装饰事项' : '添加装饰事项',
+    '<label class="f-label">事项内容</label>' +
+    '<input class="f-input" id="nd-title" maxlength="30" placeholder="例如：贴喜字、挂气球、摆鲜花" value="' + (t ? esc(t.title) : '') + '">' +
+    '<label class="f-label">备注（可选）</label>' +
+    '<input class="f-input" id="nd-desc" maxlength="60" placeholder="补充备注，如材料、尺寸、购买链接等" value="' + (t ? esc(t.desc) : '') + '">' +
+    '<label class="f-label">装饰区域</label>' +
+    '<div class="form-chips" id="nd-groups">' + chips + '</div>' +
+    '<button class="btn-primary" onclick="submitDecor()">' + (t ? '保存修改' : '确认添加') + '</button>');
+  setTimeout(() => document.getElementById('nd-title').focus(), 300);
+}
+function pickDecorGroup(id) {
+  modalDecorGroup = id;
+  document.querySelectorAll('#nd-groups .chip').forEach(el => {
+    el.classList.toggle('active', el.dataset.dg === id);
+  });
+}
+function submitDecor() {
+  const title = document.getElementById('nd-title').value.trim();
+  const desc = document.getElementById('nd-desc').value.trim();
+  if (!title) { showToast('请输入事项内容'); return; }
+  if (editDecorId) {
+    const t = state.decor.tasks.find(x => x.id === editDecorId);
+    if (t) { t.title = title; t.desc = desc; t.groupId = modalDecorGroup; }
+    closeModal();
+    mutate();
+    showToast('已修改');
+  } else {
+    state.decor.tasks.push({ id: 'dc_' + Date.now(), groupId: modalDecorGroup, title: title, desc: desc, done: false });
+    closeModal();
+    mutate();
+    showToast('已添加');
+  }
 }
 
 /* ================= Tab 切换 ================= */
