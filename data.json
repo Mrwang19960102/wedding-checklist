@@ -4,7 +4,6 @@
     "brideName": "夏梦颖",
     "weddingDate": "2026-10-03"
   },
-  "tasks": [],
   "hotels": [
     {
       "id": "hotel_main",
@@ -95,89 +94,8 @@
       "guests": []
     }
   ],
-  "categories": [
-    {
-      "id": "venue",
-      "name": "酒店婚宴",
-      "planned": 60000
-    },
-    {
-      "id": "planner",
-      "name": "婚庆策划",
-      "planned": 25000
-    },
-    {
-      "id": "photo",
-      "name": "婚纱摄影",
-      "planned": 8000
-    },
-    {
-      "id": "dress",
-      "name": "婚纱礼服",
-      "planned": 15000
-    },
-    {
-      "id": "jewelry",
-      "name": "戒指珠宝",
-      "planned": 20000
-    },
-    {
-      "id": "beauty",
-      "name": "跟妆造型",
-      "planned": 5000
-    },
-    {
-      "id": "shoot",
-      "name": "婚礼跟拍",
-      "planned": 8000
-    },
-    {
-      "id": "flower",
-      "name": "鲜花布置",
-      "planned": 8000
-    },
-    {
-      "id": "honeymoon",
-      "name": "蜜月旅行",
-      "planned": 15000
-    },
-    {
-      "id": "other",
-      "name": "其他支出",
-      "planned": 6000
-    }
-  ],
-  "expenses": [
-    {
-      "id": "exp_1",
-      "categoryId": "venue",
-      "title": "婚宴定金",
-      "amount": 20000,
-      "date": "2026-07-06"
-    },
-    {
-      "id": "exp_2",
-      "categoryId": "photo",
-      "title": "婚纱照套餐定金",
-      "amount": 3000,
-      "date": "2026-07-20"
-    },
-    {
-      "id": "exp_3",
-      "categoryId": "jewelry",
-      "title": "结婚对戒",
-      "amount": 9800,
-      "date": "2026-08-05"
-    },
-    {
-      "id": "exp_4",
-      "categoryId": "dress",
-      "title": "出门纱租赁定金",
-      "amount": 1500,
-      "date": "2026-08-12"
-    }
-  ],
   "decor": {
     "tasks": []
-  }
+  },
+  "v": 7
 }
