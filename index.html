@@ -501,7 +501,7 @@
 /* ================= 基础数据 ================= */
 const DEFAULT_DATA = {
   profile: { groomName: '王少松', brideName: '夏梦颖', weddingDate: '2026-10-03' },
-  hotels: [buildDefaultHotel(), buildPickupHotel()],
+  hotels: [buildDefaultHotel(), buildPickupHotel(), buildHuimenHotel()],
   decor: { tasks: [] },
 };
 function buildDefaultHotel() {
@@ -541,6 +541,19 @@ function buildPickupHotel() {
     bookings: [
       { id: 'bk_1', room: '总统套房', dates: '2026.10.2~2026.10.3', nights: 1, count: 1, note: '接亲用' },
     ],
+    guests: [],
+  };
+}
+function buildHuimenHotel() {
+  return {
+    id: 'hotel_huimen',
+    tag: '信息待补充',
+    name: '回门宴酒店',
+    address: '',
+    phone: '',
+    highlights: [],
+    notes: [],
+    bookings: [],
     guests: [],
   };
 }
@@ -714,6 +727,7 @@ function renderAll() {
     if (!mainHotel.bookings || !mainHotel.bookings.length) mainHotel.bookings = defHotel.bookings;
   }
   if (!state.hotels.find(h => h.id === 'hotel_pickup')) state.hotels.push(buildPickupHotel());
+  if (!state.hotels.find(h => h.id === 'hotel_huimen')) state.hotels.push(buildHuimenHotel());
   // v2 迁移：观嵩山酒店旧「入住名单」转为「预定信息」
   if (!state.v || state.v < 2) {
     const m = state.hotels.find(h => h.id === 'hotel_main');
