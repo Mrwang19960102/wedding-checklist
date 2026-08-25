@@ -149,6 +149,7 @@
   .stage-time { font-size: 11px; color: var(--text3); margin-left: 8px; flex-shrink: 0; }
   .stage-count { font-size: 12px; color: var(--text3); flex-shrink: 0; }
   .zone-head { margin: 18px 4px 2px; font-size: 15px; font-weight: 700; }
+  .section-head { margin: 16px 4px 2px; font-size: 17px; font-weight: 800; }
   .task-list { margin-top: 12px; }
   .task {
     display: flex; align-items: flex-start;
@@ -484,7 +485,7 @@
   <nav class="tabbar">
     <button class="tab active" data-tab="decor" onclick="switchTab('decor')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.4z"/><path d="M18.5 14.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"/><path d="M6 16.5l.7 1.6 1.6.7-1.6.7-.7 1.6-.7-1.6-1.6-.7 1.6-.7z"/></svg>
-      装饰
+      清单
     </button>
     <button class="tab" data-tab="hotel" onclick="switchTab('hotel')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v11"/><path d="M21 18v-7a2 2 0 0 0-2-2H10v7"/><path d="M3 16h18"/><circle cx="6.5" cy="10.5" r="1.5"/></svg>
@@ -1152,15 +1153,15 @@ function renderDecor() {
     '<div class="hero">' +
       '<div class="hero-top">' +
         '<div style="flex:1;min-width:0">' +
-          '<div class="hero-names">婚房装饰</div>' +
-          '<div class="hero-date">家庭内部 · 外部装饰清单</div>' +
+          '<div class="hero-names">备婚清单</div>' +
+          '<div class="hero-date">当前板块：装饰</div>' +
         '</div>' +
       '</div>' +
       '<div class="hero-divider"></div>' +
       '<div class="hero-progress-info"><span>装饰进度</span><span>' + done + '/' + total + ' 项 · ' + percent + '%</span></div>' +
       '<div class="track white" style="height:7px"><div class="bar" style="width:' + percent + '%"></div></div>' +
     '</div>';
-  let html = '';
+  let html = '<div class="section-head">装饰</div>';
   [['in', '家庭内部装饰'], ['out', '家庭外部装饰']].forEach(z => {
     html += '<div class="zone-head">' + z[1] + '</div>';
     DECOR_GROUPS.filter(g => g.zone === z[0]).forEach(g => {
