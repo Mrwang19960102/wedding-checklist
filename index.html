@@ -420,6 +420,14 @@
   .hotel-chev.open { transform: rotate(-180deg); }
   .hotel-body { display: none; }
   .hotel-body.open { display: block; animation: fadeIn .25s ease; }
+
+  /* ---------- 手风琴（装饰分组） ---------- */
+  .decor-head { cursor: pointer; margin-bottom: 0; }
+  .decor-head-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .decor-chev { color: #E15B7E; font-size: 14px; line-height: 1; transition: transform .25s ease; }
+  .decor-chev.open { transform: rotate(-180deg); }
+  .decor-body { display: none; }
+  .decor-body.open { display: block; animation: fadeIn .25s ease; }
 </style>
 </head>
 <body>
@@ -1129,6 +1137,11 @@ const DECOR_GROUPS = [
 ];
 let editDecorId = '';
 let modalDecorGroup = 'dg_master';
+let expandedDecorGroup = '';
+function toggleDecorGroup(id) {
+  expandedDecorGroup = expandedDecorGroup === id ? '' : id;
+  renderDecor();
+}
 
 function renderDecor() {
   if (!state.decor) state.decor = { tasks: [] };
@@ -1153,12 +1166,13 @@ function renderDecor() {
     DECOR_GROUPS.filter(g => g.zone === z[0]).forEach(g => {
       const tasks = state.decor.tasks.filter(t => t.groupId === g.id);
       const gdone = tasks.filter(t => t.done).length;
+      const open = expandedDecorGroup === g.id;
       html += '<div class="card">' +
-        '<div class="stage-head">' +
+        '<div class="stage-head decor-head" onclick="toggleDecorGroup(\'' + g.id + '\')">' +
           '<div class="stage-title-wrap"><span class="stage-dot"></span><span class="stage-name">' + g.name + '</span></div>' +
-          '<span class="stage-count">' + gdone + '/' + tasks.length + '</span>' +
+          '<div class="decor-head-right"><span class="stage-count">' + gdone + '/' + tasks.length + '</span><span class="decor-chev' + (open ? ' open' : '') + '">▾</span></div>' +
         '</div>' +
-        '<div class="task-list">';
+        '<div class="decor-body' + (open ? ' open' : '') + '"><div class="task-list">';
       if (tasks.length === 0) {
         html += '<span class="empty-tip">暂无装饰事项，点击右下角「+」添加</span>';
       } else {
@@ -1174,7 +1188,7 @@ function renderDecor() {
           '</div>';
         });
       }
-      html += '</div></div>';
+      html += '</div></div></div>';
     });
   });
   document.getElementById('decor-wrap').innerHTML = html;
