@@ -92,6 +92,17 @@
         }
       ],
       "guests": []
+    },
+    {
+      "id": "hotel_huimen",
+      "tag": "信息待补充",
+      "name": "回门宴酒店",
+      "address": "",
+      "phone": "",
+      "highlights": [],
+      "notes": [],
+      "bookings": [],
+      "guests": []
     }
   ],
   "decor": {
