@@ -149,8 +149,13 @@
   .stage-time { font-size: 11px; color: var(--text3); margin-left: 8px; flex-shrink: 0; }
   .stage-count { font-size: 12px; color: var(--text3); flex-shrink: 0; }
   .zone-head { margin: 18px 4px 2px; font-size: 15px; font-weight: 700; }
-  .section-head { margin: 16px 4px 2px; font-size: 17px; font-weight: 800; display: flex; align-items: center; justify-content: space-between; }
+  .section-head { margin: 16px 4px 2px; font-size: 17px; font-weight: 800; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+  .section-title-wrap { display: flex; align-items: center; gap: 6px; }
+  .section-chev { color: #E15B7E; font-size: 14px; line-height: 1; transition: transform .25s ease; }
+  .section-chev.open { transform: rotate(-180deg); }
   .section-add { font-size: 12px; font-weight: 600; color: #E15B7E; }
+  .section-body { display: none; }
+  .section-body.open { display: block; animation: fadeIn .25s ease; }
   .task-list { margin-top: 12px; }
   .task {
     display: flex; align-items: flex-start;
@@ -791,9 +796,7 @@ function renderAll() {
   });
   if (!state.drinks) state.drinks = { tasks: [] };
   if (!state.clothes) state.clothes = { tasks: [] };
-  renderDecor();
-  renderDrinks();
-  renderClothes();
+  renderListSections();
   renderHotel();
   renderMine();
 }
@@ -1145,10 +1148,20 @@ const DECOR_GROUPS = [
 ];
 let editDecorId = '';
 let modalDecorGroup = 'dg_master';
+let expandedSection = '';
+function toggleSection(id) {
+  expandedSection = expandedSection === id ? '' : id;
+  renderListSections();
+}
+function renderListSections() {
+  renderDecor();
+  renderDrinks();
+  renderClothes();
+}
 let expandedDecorGroup = '';
 function toggleDecorGroup(id) {
   expandedDecorGroup = expandedDecorGroup === id ? '' : id;
-  renderDecor();
+  renderListSections();
 }
 
 function renderDecor() {
@@ -1171,7 +1184,11 @@ function renderDecor() {
       '<div class="hero-progress-info"><span>清单进度</span><span>' + done + '/' + total + ' 项 · ' + percent + '%</span></div>' +
       '<div class="track white" style="height:7px"><div class="bar" style="width:' + percent + '%"></div></div>' +
     '</div>';
-  let html = '<div class="section-head">装饰<span class="section-add" onclick="openAddDecor()">+ 添加</span></div>';
+  const secOpen = expandedSection === 'decor';
+  let html = '<div class="section-head" onclick="toggleSection(\'decor\')">' +
+    '<span class="section-title-wrap">装饰<span class="section-chev' + (secOpen ? ' open' : '') + '">▾</span></span>' +
+    '<span class="section-add" onclick="event.stopPropagation();openAddDecor()">+ 添加</span></div>' +
+    '<div class="section-body' + (secOpen ? ' open' : '') + '">';
   [['in', '家庭内部装饰'], ['out', '家庭外部装饰']].forEach(z => {
     html += '<div class="zone-head">' + z[1] + '</div>';
     DECOR_GROUPS.filter(g => g.zone === z[0]).forEach(g => {
@@ -1202,6 +1219,7 @@ function renderDecor() {
       html += '</div></div></div>';
     });
   });
+  html += '</div>';
   document.getElementById('decor-wrap').innerHTML = html;
 }
 function toggleDecor(id) {
@@ -1276,12 +1294,16 @@ let modalDrinkGroup = 'dj_baijiu';
 let expandedDrinkGroup = '';
 function toggleDrinkGroup(id) {
   expandedDrinkGroup = expandedDrinkGroup === id ? '' : id;
-  renderDrinks();
+  renderListSections();
 }
 
 function renderDrinks() {
   if (!state.drinks) state.drinks = { tasks: [] };
-  let html = '<div class="section-head">酒水<span class="section-add" onclick="openAddDrink()">+ 添加</span></div>';
+  const secOpen = expandedSection === 'drinks';
+  let html = '<div class="section-head" onclick="toggleSection(\'drinks\')">' +
+    '<span class="section-title-wrap">酒水<span class="section-chev' + (secOpen ? ' open' : '') + '">▾</span></span>' +
+    '<span class="section-add" onclick="event.stopPropagation();openAddDrink()">+ 添加</span></div>' +
+    '<div class="section-body' + (secOpen ? ' open' : '') + '">';
   DRINK_GROUPS.forEach(g => {
     const tasks = state.drinks.tasks.filter(t => t.groupId === g.id);
     const gdone = tasks.filter(t => t.done).length;
@@ -1309,6 +1331,7 @@ function renderDrinks() {
     }
     html += '</div></div></div>';
   });
+  html += '</div>';
   document.getElementById('decor-wrap').innerHTML += html;
 }
 function toggleDrink(id) {
@@ -1392,12 +1415,16 @@ let modalClothGroup = 'cf_groom';
 let expandedClothGroup = '';
 function toggleClothGroup(id) {
   expandedClothGroup = expandedClothGroup === id ? '' : id;
-  renderClothes();
+  renderListSections();
 }
 
 function renderClothes() {
   if (!state.clothes) state.clothes = { tasks: [] };
-  let html = '<div class="section-head">服装<span class="section-add" onclick="openAddCloth()">+ 添加</span></div>';
+  const secOpen = expandedSection === 'clothes';
+  let html = '<div class="section-head" onclick="toggleSection(\'clothes\')">' +
+    '<span class="section-title-wrap">服装<span class="section-chev' + (secOpen ? ' open' : '') + '">▾</span></span>' +
+    '<span class="section-add" onclick="event.stopPropagation();openAddCloth()">+ 添加</span></div>' +
+    '<div class="section-body' + (secOpen ? ' open' : '') + '">';
   CLOTH_GROUPS.forEach(g => {
     const tasks = state.clothes.tasks.filter(t => t.groupId === g.id);
     const gdone = tasks.filter(t => t.done).length;
@@ -1425,6 +1452,7 @@ function renderClothes() {
     }
     html += '</div></div></div>';
   });
+  html += '</div>';
   document.getElementById('decor-wrap').innerHTML += html;
 }
 function toggleCloth(id) {
