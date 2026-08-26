@@ -4,6 +4,10 @@
     "brideName": "夏梦颖",
     "weddingDate": "2026-10-03"
   },
+  "cert": {
+    "date": "2026-09-19",
+    "place": "南京市金陵浪漫中心"
+  },
   "hotels": [
     {
       "id": "hotel_main",
