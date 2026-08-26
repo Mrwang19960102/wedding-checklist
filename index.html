@@ -149,7 +149,8 @@
   .stage-time { font-size: 11px; color: var(--text3); margin-left: 8px; flex-shrink: 0; }
   .stage-count { font-size: 12px; color: var(--text3); flex-shrink: 0; }
   .zone-head { margin: 18px 4px 2px; font-size: 15px; font-weight: 700; }
-  .section-head { margin: 16px 4px 2px; font-size: 17px; font-weight: 800; }
+  .section-head { margin: 16px 4px 2px; font-size: 17px; font-weight: 800; display: flex; align-items: center; justify-content: space-between; }
+  .section-add { font-size: 12px; font-weight: 600; color: #E15B7E; }
   .task-list { margin-top: 12px; }
   .task {
     display: flex; align-items: flex-start;
@@ -443,7 +444,7 @@
     <section id="view-decor" class="view active">
       <div id="decor-hero"></div>
       <div id="decor-wrap"></div>
-      <button class="fab" onclick="openAddDecor()">+</button>
+      <button class="fab" onclick="openAddChoice()">+</button>
     </section>
 
     <!-- 住宿 -->
@@ -519,6 +520,7 @@ const DEFAULT_DATA = {
   profile: { groomName: '王少松', brideName: '夏梦颖', weddingDate: '2026-10-03' },
   hotels: [buildDefaultHotel(), buildPickupHotel(), buildHuimenHotel()],
   decor: { tasks: [] },
+  drinks: { tasks: [] },
 };
 function buildDefaultHotel() {
   return {
@@ -786,7 +788,9 @@ function renderAll() {
     if (!h.guests) h.guests = [];
     if (!h.bookings) h.bookings = [];
   });
+  if (!state.drinks) state.drinks = { tasks: [] };
   renderDecor();
+  renderDrinks();
   renderHotel();
   renderMine();
 }
@@ -1078,13 +1082,13 @@ function renderMine() {
   if (document.activeElement !== groom) groom.value = state.profile.groomName;
   if (document.activeElement !== bride) bride.value = state.profile.brideName;
   if (document.activeElement !== date) date.value = state.profile.weddingDate;
-  const decorTasks = state.decor ? state.decor.tasks : [];
-  const dDone = decorTasks.filter(t => t.done).length;
+  const listTasks = (state.decor ? state.decor.tasks : []).concat(state.drinks ? state.drinks.tasks : []);
+  const dDone = listTasks.filter(t => t.done).length;
   const hotels = state.hotels || [];
   const bookings = hotels.reduce((s, h) => s + (h.bookings ? h.bookings.length : 0), 0);
   document.getElementById('mine-stats').innerHTML =
-    '<div class="mine-stat"><span class="stat-value">' + decorTasks.length + '</span><span class="stat-label">装饰事项</span></div>' +
-    '<div class="mine-stat"><span class="stat-value">' + dDone + '</span><span class="stat-label">已完成装饰</span></div>' +
+    '<div class="mine-stat"><span class="stat-value">' + listTasks.length + '</span><span class="stat-label">清单事项</span></div>' +
+    '<div class="mine-stat"><span class="stat-value">' + dDone + '</span><span class="stat-label">已完成</span></div>' +
     '<div class="mine-stat"><span class="stat-value">' + hotels.length + '</span><span class="stat-label">入住酒店</span></div>' +
     '<div class="mine-stat"><span class="stat-value">' + bookings + '</span><span class="stat-label">预定笔数</span></div>';
 }
@@ -1146,22 +1150,24 @@ function toggleDecorGroup(id) {
 
 function renderDecor() {
   if (!state.decor) state.decor = { tasks: [] };
-  const total = state.decor.tasks.length;
-  const done = state.decor.tasks.filter(t => t.done).length;
+  if (!state.drinks) state.drinks = { tasks: [] };
+  const all = state.decor.tasks.concat(state.drinks.tasks);
+  const total = all.length;
+  const done = all.filter(t => t.done).length;
   const percent = total > 0 ? Math.round(done / total * 100) : 0;
   document.getElementById('decor-hero').innerHTML =
     '<div class="hero">' +
       '<div class="hero-top">' +
         '<div style="flex:1;min-width:0">' +
           '<div class="hero-names">备婚清单</div>' +
-          '<div class="hero-date">当前板块：装饰</div>' +
+          '<div class="hero-date">板块：装饰 · 酒水</div>' +
         '</div>' +
       '</div>' +
       '<div class="hero-divider"></div>' +
-      '<div class="hero-progress-info"><span>装饰进度</span><span>' + done + '/' + total + ' 项 · ' + percent + '%</span></div>' +
+      '<div class="hero-progress-info"><span>清单进度</span><span>' + done + '/' + total + ' 项 · ' + percent + '%</span></div>' +
       '<div class="track white" style="height:7px"><div class="bar" style="width:' + percent + '%"></div></div>' +
     '</div>';
-  let html = '<div class="section-head">装饰</div>';
+  let html = '<div class="section-head">装饰<span class="section-add" onclick="openAddDecor()">+ 添加</span></div>';
   [['in', '家庭内部装饰'], ['out', '家庭外部装饰']].forEach(z => {
     html += '<div class="zone-head">' + z[1] + '</div>';
     DECOR_GROUPS.filter(g => g.zone === z[0]).forEach(g => {
@@ -1247,6 +1253,121 @@ function submitDecor() {
     showToast('已修改');
   } else {
     state.decor.tasks.push({ id: 'dc_' + Date.now(), groupId: modalDecorGroup, title: title, desc: desc, done: false });
+    closeModal();
+    mutate();
+    showToast('已添加');
+  }
+}
+
+/* ================= 清单 · 酒水板块 ================= */
+const DRINK_GROUPS = [
+  { id: 'dj_baijiu', name: '白酒' },
+  { id: 'dj_wine', name: '红酒' },
+  { id: 'dj_beer', name: '啤酒' },
+  { id: 'dj_soft', name: '饮料' },
+  { id: 'dj_other', name: '其他' },
+];
+let editDrinkId = '';
+let modalDrinkGroup = 'dj_baijiu';
+let expandedDrinkGroup = '';
+function toggleDrinkGroup(id) {
+  expandedDrinkGroup = expandedDrinkGroup === id ? '' : id;
+  renderDrinks();
+}
+
+function renderDrinks() {
+  if (!state.drinks) state.drinks = { tasks: [] };
+  let html = '<div class="section-head">酒水<span class="section-add" onclick="openAddDrink()">+ 添加</span></div>';
+  DRINK_GROUPS.forEach(g => {
+    const tasks = state.drinks.tasks.filter(t => t.groupId === g.id);
+    const gdone = tasks.filter(t => t.done).length;
+    const open = expandedDrinkGroup === g.id;
+    html += '<div class="card">' +
+      '<div class="stage-head decor-head" onclick="toggleDrinkGroup(\'' + g.id + '\')">' +
+        '<div class="stage-title-wrap"><span class="stage-dot"></span><span class="stage-name">' + g.name + '</span></div>' +
+        '<div class="decor-head-right"><span class="stage-count">' + gdone + '/' + tasks.length + '</span><span class="decor-chev' + (open ? ' open' : '') + '">▾</span></div>' +
+      '</div>' +
+      '<div class="decor-body' + (open ? ' open' : '') + '"><div class="task-list">';
+    if (tasks.length === 0) {
+      html += '<span class="empty-tip">暂无酒水事项，点右上「+ 添加」</span>';
+    } else {
+      tasks.forEach(t => {
+        html += '<div class="task' + (t.done ? ' done' : '') + '">' +
+          '<div class="checkbox' + (t.done ? ' done' : '') + '" onclick="toggleDrink(\'' + t.id + '\')">✓</div>' +
+          '<div class="task-content" onclick="toggleDrink(\'' + t.id + '\')">' +
+            '<div class="task-title-row"><span class="task-title">' + esc(t.title) + '</span></div>' +
+            (t.desc ? '<span class="task-desc">' + esc(t.desc) + '</span>' : '') +
+          '</div>' +
+          '<div class="task-edit" onclick="openEditDrink(\'' + t.id + '\')">✎</div>' +
+          '<div class="task-del" onclick="deleteDrink(\'' + t.id + '\')">✕</div>' +
+        '</div>';
+      });
+    }
+    html += '</div></div></div>';
+  });
+  document.getElementById('decor-wrap').innerHTML += html;
+}
+function toggleDrink(id) {
+  const t = state.drinks.tasks.find(x => x.id === id);
+  if (!t) return;
+  t.done = !t.done;
+  mutate();
+}
+function deleteDrink(id) {
+  askConfirm('确定要删除这条酒水事项吗？', () => {
+    state.drinks.tasks = state.drinks.tasks.filter(t => t.id !== id);
+    mutate();
+    showToast('已删除');
+  });
+}
+function openAddChoice() {
+  openModal('添加事项',
+    '<div class="confirm-text">选择要添加到的板块</div>' +
+    '<div class="confirm-btns">' +
+      '<button class="btn-ghost" onclick="closeModal();openAddDecor()">装饰</button>' +
+      '<button class="btn-primary" onclick="closeModal();openAddDrink()">酒水</button>' +
+    '</div>');
+}
+function openAddDrink() { openDrinkForm(null); }
+function openEditDrink(id) {
+  const t = state.drinks.tasks.find(x => x.id === id);
+  if (t) openDrinkForm(t);
+}
+function openDrinkForm(t) {
+  editDrinkId = t ? t.id : '';
+  modalDrinkGroup = t ? t.groupId : 'dj_baijiu';
+  let chips = '';
+  DRINK_GROUPS.forEach(g => {
+    chips += '<button class="chip form' + (g.id === modalDrinkGroup ? ' active' : '') + '" data-dj="' + g.id + '" onclick="pickDrinkGroup(\'' + g.id + '\')">' + g.name + '</button>';
+  });
+  openModal(t ? '修改酒水事项' : '添加酒水事项',
+    '<label class="f-label">事项内容</label>' +
+    '<input class="f-input" id="ni-title" maxlength="30" placeholder="例如：白酒 10 箱" value="' + (t ? esc(t.title) : '') + '">' +
+    '<label class="f-label">备注（可选）</label>' +
+    '<input class="f-input" id="ni-desc" maxlength="60" placeholder="补充备注，如品牌、规格、购买渠道等" value="' + (t ? esc(t.desc) : '') + '">' +
+    '<label class="f-label">酒水分类</label>' +
+    '<div class="form-chips" id="ni-groups">' + chips + '</div>' +
+    '<button class="btn-primary" onclick="submitDrink()">' + (t ? '保存修改' : '确认添加') + '</button>');
+  setTimeout(() => document.getElementById('ni-title').focus(), 300);
+}
+function pickDrinkGroup(id) {
+  modalDrinkGroup = id;
+  document.querySelectorAll('#ni-groups .chip').forEach(el => {
+    el.classList.toggle('active', el.dataset.dj === id);
+  });
+}
+function submitDrink() {
+  const title = document.getElementById('ni-title').value.trim();
+  const desc = document.getElementById('ni-desc').value.trim();
+  if (!title) { showToast('请输入事项内容'); return; }
+  if (editDrinkId) {
+    const t = state.drinks.tasks.find(x => x.id === editDrinkId);
+    if (t) { t.title = title; t.desc = desc; t.groupId = modalDrinkGroup; }
+    closeModal();
+    mutate();
+    showToast('已修改');
+  } else {
+    state.drinks.tasks.push({ id: 'dk_' + Date.now(), groupId: modalDrinkGroup, title: title, desc: desc, done: false });
     closeModal();
     mutate();
     showToast('已添加');
