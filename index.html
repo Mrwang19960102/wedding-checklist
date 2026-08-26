@@ -521,6 +521,7 @@ const DEFAULT_DATA = {
   hotels: [buildDefaultHotel(), buildPickupHotel(), buildHuimenHotel()],
   decor: { tasks: [] },
   drinks: { tasks: [] },
+  clothes: { tasks: [] },
 };
 function buildDefaultHotel() {
   return {
@@ -789,8 +790,10 @@ function renderAll() {
     if (!h.bookings) h.bookings = [];
   });
   if (!state.drinks) state.drinks = { tasks: [] };
+  if (!state.clothes) state.clothes = { tasks: [] };
   renderDecor();
   renderDrinks();
+  renderClothes();
   renderHotel();
   renderMine();
 }
@@ -1082,7 +1085,7 @@ function renderMine() {
   if (document.activeElement !== groom) groom.value = state.profile.groomName;
   if (document.activeElement !== bride) bride.value = state.profile.brideName;
   if (document.activeElement !== date) date.value = state.profile.weddingDate;
-  const listTasks = (state.decor ? state.decor.tasks : []).concat(state.drinks ? state.drinks.tasks : []);
+  const listTasks = (state.decor ? state.decor.tasks : []).concat(state.drinks ? state.drinks.tasks : [], state.clothes ? state.clothes.tasks : []);
   const dDone = listTasks.filter(t => t.done).length;
   const hotels = state.hotels || [];
   const bookings = hotels.reduce((s, h) => s + (h.bookings ? h.bookings.length : 0), 0);
@@ -1151,7 +1154,8 @@ function toggleDecorGroup(id) {
 function renderDecor() {
   if (!state.decor) state.decor = { tasks: [] };
   if (!state.drinks) state.drinks = { tasks: [] };
-  const all = state.decor.tasks.concat(state.drinks.tasks);
+  if (!state.clothes) state.clothes = { tasks: [] };
+  const all = state.decor.tasks.concat(state.drinks.tasks, state.clothes.tasks);
   const total = all.length;
   const done = all.filter(t => t.done).length;
   const percent = total > 0 ? Math.round(done / total * 100) : 0;
@@ -1160,7 +1164,7 @@ function renderDecor() {
       '<div class="hero-top">' +
         '<div style="flex:1;min-width:0">' +
           '<div class="hero-names">备婚清单</div>' +
-          '<div class="hero-date">板块：装饰 · 酒水</div>' +
+          '<div class="hero-date">板块：装饰 · 酒水 · 服装</div>' +
         '</div>' +
       '</div>' +
       '<div class="hero-divider"></div>' +
@@ -1326,6 +1330,7 @@ function openAddChoice() {
     '<div class="confirm-btns">' +
       '<button class="btn-ghost" onclick="closeModal();openAddDecor()">装饰</button>' +
       '<button class="btn-primary" onclick="closeModal();openAddDrink()">酒水</button>' +
+      '<button class="btn-ghost" onclick="closeModal();openAddCloth()">服装</button>' +
     '</div>');
 }
 function openAddDrink() { openDrinkForm(null); }
@@ -1368,6 +1373,113 @@ function submitDrink() {
     showToast('已修改');
   } else {
     state.drinks.tasks.push({ id: 'dk_' + Date.now(), groupId: modalDrinkGroup, title: title, desc: desc, done: false });
+    closeModal();
+    mutate();
+    showToast('已添加');
+  }
+}
+
+/* ================= 清单 · 服装板块 ================= */
+const CLOTH_GROUPS = [
+  { id: 'cf_groom', name: '新郎服装' },
+  { id: 'cf_bride', name: '新娘服装' },
+  { id: 'cf_parents', name: '双方父母' },
+  { id: 'cf_team', name: '伴郎伴娘' },
+  { id: 'cf_other', name: '其他' },
+];
+let editClothId = '';
+let modalClothGroup = 'cf_groom';
+let expandedClothGroup = '';
+function toggleClothGroup(id) {
+  expandedClothGroup = expandedClothGroup === id ? '' : id;
+  renderClothes();
+}
+
+function renderClothes() {
+  if (!state.clothes) state.clothes = { tasks: [] };
+  let html = '<div class="section-head">服装<span class="section-add" onclick="openAddCloth()">+ 添加</span></div>';
+  CLOTH_GROUPS.forEach(g => {
+    const tasks = state.clothes.tasks.filter(t => t.groupId === g.id);
+    const gdone = tasks.filter(t => t.done).length;
+    const open = expandedClothGroup === g.id;
+    html += '<div class="card">' +
+      '<div class="stage-head decor-head" onclick="toggleClothGroup(\'' + g.id + '\')">' +
+        '<div class="stage-title-wrap"><span class="stage-dot"></span><span class="stage-name">' + g.name + '</span></div>' +
+        '<div class="decor-head-right"><span class="stage-count">' + gdone + '/' + tasks.length + '</span><span class="decor-chev' + (open ? ' open' : '') + '">▾</span></div>' +
+      '</div>' +
+      '<div class="decor-body' + (open ? ' open' : '') + '"><div class="task-list">';
+    if (tasks.length === 0) {
+      html += '<span class="empty-tip">暂无服装事项，点右上「+ 添加」</span>';
+    } else {
+      tasks.forEach(t => {
+        html += '<div class="task' + (t.done ? ' done' : '') + '">' +
+          '<div class="checkbox' + (t.done ? ' done' : '') + '" onclick="toggleCloth(\'' + t.id + '\')">✓</div>' +
+          '<div class="task-content" onclick="toggleCloth(\'' + t.id + '\')">' +
+            '<div class="task-title-row"><span class="task-title">' + esc(t.title) + '</span></div>' +
+            (t.desc ? '<span class="task-desc">' + esc(t.desc) + '</span>' : '') +
+          '</div>' +
+          '<div class="task-edit" onclick="openEditCloth(\'' + t.id + '\')">✎</div>' +
+          '<div class="task-del" onclick="deleteCloth(\'' + t.id + '\')">✕</div>' +
+        '</div>';
+      });
+    }
+    html += '</div></div></div>';
+  });
+  document.getElementById('decor-wrap').innerHTML += html;
+}
+function toggleCloth(id) {
+  const t = state.clothes.tasks.find(x => x.id === id);
+  if (!t) return;
+  t.done = !t.done;
+  mutate();
+}
+function deleteCloth(id) {
+  askConfirm('确定要删除这条服装事项吗？', () => {
+    state.clothes.tasks = state.clothes.tasks.filter(t => t.id !== id);
+    mutate();
+    showToast('已删除');
+  });
+}
+function openAddCloth() { openClothForm(null); }
+function openEditCloth(id) {
+  const t = state.clothes.tasks.find(x => x.id === id);
+  if (t) openClothForm(t);
+}
+function openClothForm(t) {
+  editClothId = t ? t.id : '';
+  modalClothGroup = t ? t.groupId : 'cf_groom';
+  let chips = '';
+  CLOTH_GROUPS.forEach(g => {
+    chips += '<button class="chip form' + (g.id === modalClothGroup ? ' active' : '') + '" data-cf="' + g.id + '" onclick="pickClothGroup(\'' + g.id + '\')">' + g.name + '</button>';
+  });
+  openModal(t ? '修改服装事项' : '添加服装事项',
+    '<label class="f-label">事项内容</label>' +
+    '<input class="f-input" id="nc-title" maxlength="30" placeholder="例如：主婚纱租赁" value="' + (t ? esc(t.title) : '') + '">' +
+    '<label class="f-label">备注（可选）</label>' +
+    '<input class="f-input" id="nc-desc" maxlength="60" placeholder="补充备注，如尺码、颜色、租/买等" value="' + (t ? esc(t.desc) : '') + '">' +
+    '<label class="f-label">服装分类</label>' +
+    '<div class="form-chips" id="nc-groups">' + chips + '</div>' +
+    '<button class="btn-primary" onclick="submitCloth()">' + (t ? '保存修改' : '确认添加') + '</button>');
+  setTimeout(() => document.getElementById('nc-title').focus(), 300);
+}
+function pickClothGroup(id) {
+  modalClothGroup = id;
+  document.querySelectorAll('#nc-groups .chip').forEach(el => {
+    el.classList.toggle('active', el.dataset.cf === id);
+  });
+}
+function submitCloth() {
+  const title = document.getElementById('nc-title').value.trim();
+  const desc = document.getElementById('nc-desc').value.trim();
+  if (!title) { showToast('请输入事项内容'); return; }
+  if (editClothId) {
+    const t = state.clothes.tasks.find(x => x.id === editClothId);
+    if (t) { t.title = title; t.desc = desc; t.groupId = modalClothGroup; }
+    closeModal();
+    mutate();
+    showToast('已修改');
+  } else {
+    state.clothes.tasks.push({ id: 'cf_' + Date.now(), groupId: modalClothGroup, title: title, desc: desc, done: false });
     closeModal();
     mutate();
     showToast('已添加');
