@@ -452,6 +452,11 @@
       <button class="fab" onclick="openAddChoice()">+</button>
     </section>
 
+    <!-- 领证 -->
+    <section id="view-cert" class="view">
+      <div id="cert-wrap"></div>
+    </section>
+
     <!-- 住宿 -->
     <section id="view-hotel" class="view">
       <div id="hotel-wrap"></div>
@@ -493,6 +498,10 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.4z"/><path d="M18.5 14.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"/><path d="M6 16.5l.7 1.6 1.6.7-1.6.7-.7 1.6-.7-1.6-1.6-.7 1.6-.7z"/></svg>
       清单
     </button>
+    <button class="tab" data-tab="cert" onclick="switchTab('cert')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="12" r="5.5"/><circle cx="15" cy="12" r="5.5"/></svg>
+      领证
+    </button>
     <button class="tab" data-tab="hotel" onclick="switchTab('hotel')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v11"/><path d="M21 18v-7a2 2 0 0 0-2-2H10v7"/><path d="M3 16h18"/><circle cx="6.5" cy="10.5" r="1.5"/></svg>
       住宿
@@ -524,6 +533,7 @@
 const DEFAULT_DATA = {
   profile: { groomName: '王少松', brideName: '夏梦颖', weddingDate: '2026-10-03' },
   hotels: [buildDefaultHotel(), buildPickupHotel(), buildHuimenHotel()],
+  cert: { date: '2026-09-19', place: '南京市金陵浪漫中心' },
   decor: { tasks: [] },
   drinks: { tasks: [] },
   clothes: { tasks: [] },
@@ -796,7 +806,9 @@ function renderAll() {
   });
   if (!state.drinks) state.drinks = { tasks: [] };
   if (!state.clothes) state.clothes = { tasks: [] };
+  if (!state.cert) state.cert = { date: '2026-09-19', place: '南京市金陵浪漫中心' };
   renderListSections();
+  renderCert();
   renderHotel();
   renderMine();
 }
@@ -1512,6 +1524,34 @@ function submitCloth() {
     mutate();
     showToast('已添加');
   }
+}
+
+/* ================= 领证 ================= */
+function renderCert() {
+  const c = state.cert || { date: '2026-09-19', place: '南京市金陵浪漫中心' };
+  const days = daysUntil(c.date);
+  let html = '<div class="hero">' +
+    '<div class="hero-top">' +
+      '<div style="flex:1;min-width:0">' +
+        '<div class="hero-names">领证</div>' +
+        '<div class="hero-date">' + fmtDateCN(c.date) + ' 登记结婚</div>' +
+      '</div>' +
+      '<div class="countdown-badge">' +
+        '<span class="countdown-num">' + (days >= 0 ? days : '囍') + '</span>' +
+        '<span class="countdown-label">' + (days >= 0 ? '天后领证' : '已领证') + '</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+  html += '<div class="card"><div class="card-head"><span class="card-title">领证信息</span></div>' +
+    '<div class="info-row"><span class="info-label">时间</span><span class="info-text">' + fmtDateCN(c.date) + '</span></div>' +
+    '<div class="info-row" onclick="openCertMap()"><span class="info-label">地点</span><span class="info-text link">' + esc(c.place) + '（点击跳转高德地图）</span></div>' +
+  '</div>';
+  document.getElementById('cert-wrap').innerHTML = html;
+}
+function openCertMap() {
+  const c = state.cert || { place: '南京市金陵浪漫中心' };
+  window.location.href = 'https://uri.amap.com/search?keyword=' + encodeURIComponent(c.place) +
+    '&city=' + encodeURIComponent('南京') + '&callnative=1&src=wedding_checklist';
 }
 
 /* ================= Tab 切换 ================= */
