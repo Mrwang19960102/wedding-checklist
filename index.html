@@ -1278,9 +1278,9 @@ const DECOR_GROUPS = [
 ];
 let editDecorId = '';
 let modalDecorGroup = 'dg_master';
-let expandedSection = '';
+let expandedSections = {};
 function toggleSection(id) {
-  expandedSection = expandedSection === id ? '' : id;
+  expandedSections[id] = !expandedSections[id];
   renderListSections();
 }
 function renderListSections() {
@@ -1288,9 +1288,9 @@ function renderListSections() {
   renderDrinks();
   renderClothes();
 }
-let expandedDecorGroup = '';
+let expandedDecorGroups = {};
 function toggleDecorGroup(id) {
-  expandedDecorGroup = expandedDecorGroup === id ? '' : id;
+  expandedDecorGroups[id] = !expandedDecorGroups[id];
   renderListSections();
 }
 
@@ -1319,7 +1319,7 @@ function renderDecor() {
       '<div class="hero-progress-info"><span>清单进度</span><span>' + done + '/' + total + ' 项 · ' + percent + '%</span></div>' +
       '<div class="track white" style="height:7px"><div class="bar" style="width:' + percent + '%"></div></div>' +
     '</div>';
-  const secOpen = expandedSection === 'decor';
+  const secOpen = !!expandedSections.decor;
   let html = '<div class="section-head" onclick="toggleSection(\'decor\')">' +
     '<span class="section-title-wrap">装饰<span class="section-chev' + (secOpen ? ' open' : '') + '">▾</span></span>' +
     '<span class="section-add" onclick="event.stopPropagation();openAddDecor()">+ 添加</span></div>' +
@@ -1329,7 +1329,7 @@ function renderDecor() {
     DECOR_GROUPS.filter(g => g.zone === z[0]).forEach(g => {
       const tasks = state.decor.tasks.filter(t => t.groupId === g.id);
       const gdone = tasks.filter(t => t.done).length;
-      const open = expandedDecorGroup === g.id;
+      const open = !!expandedDecorGroups[g.id];
       html += '<div class="card">' +
         '<div class="stage-head decor-head" onclick="toggleDecorGroup(\'' + g.id + '\')">' +
           '<div class="stage-title-wrap"><span class="stage-dot"></span><span class="stage-name">' + g.name + '</span></div>' +
@@ -1426,15 +1426,15 @@ const DRINK_GROUPS = [
 ];
 let editDrinkId = '';
 let modalDrinkGroup = 'dj_baijiu';
-let expandedDrinkGroup = '';
+let expandedDrinkGroups = {};
 function toggleDrinkGroup(id) {
-  expandedDrinkGroup = expandedDrinkGroup === id ? '' : id;
+  expandedDrinkGroups[id] = !expandedDrinkGroups[id];
   renderListSections();
 }
 
 function renderDrinks() {
   if (!state.drinks) state.drinks = { tasks: [] };
-  const secOpen = expandedSection === 'drinks';
+  const secOpen = !!expandedSections.drinks;
   let html = '<div class="section-head" onclick="toggleSection(\'drinks\')">' +
     '<span class="section-title-wrap">香烟酒水<span class="section-chev' + (secOpen ? ' open' : '') + '">▾</span></span>' +
     '<span class="section-add" onclick="event.stopPropagation();openAddDrink()">+ 添加</span></div>' +
@@ -1442,7 +1442,7 @@ function renderDrinks() {
   DRINK_GROUPS.forEach(g => {
     const tasks = state.drinks.tasks.filter(t => t.groupId === g.id);
     const gdone = tasks.filter(t => t.done).length;
-    const open = expandedDrinkGroup === g.id;
+    const open = !!expandedDrinkGroups[g.id];
     html += '<div class="card">' +
       '<div class="stage-head decor-head" onclick="toggleDrinkGroup(\'' + g.id + '\')">' +
         '<div class="stage-title-wrap"><span class="stage-dot"></span><span class="stage-name">' + g.name + '</span></div>' +
@@ -1546,15 +1546,15 @@ const CLOTH_GROUPS = [
 ];
 let editClothId = '';
 let modalClothGroup = 'cf_groom';
-let expandedClothGroup = '';
+let expandedClothGroups = {};
 function toggleClothGroup(id) {
-  expandedClothGroup = expandedClothGroup === id ? '' : id;
+  expandedClothGroups[id] = !expandedClothGroups[id];
   renderListSections();
 }
 
 function renderClothes() {
   if (!state.clothes) state.clothes = { tasks: [] };
-  const secOpen = expandedSection === 'clothes';
+  const secOpen = !!expandedSections.clothes;
   let html = '<div class="section-head" onclick="toggleSection(\'clothes\')">' +
     '<span class="section-title-wrap">服装<span class="section-chev' + (secOpen ? ' open' : '') + '">▾</span></span>' +
     '<span class="section-add" onclick="event.stopPropagation();openAddCloth()">+ 添加</span></div>' +
@@ -1562,7 +1562,7 @@ function renderClothes() {
   CLOTH_GROUPS.forEach(g => {
     const tasks = state.clothes.tasks.filter(t => t.groupId === g.id);
     const gdone = tasks.filter(t => t.done).length;
-    const open = expandedClothGroup === g.id;
+    const open = !!expandedClothGroups[g.id];
     html += '<div class="card">' +
       '<div class="stage-head decor-head" onclick="toggleClothGroup(\'' + g.id + '\')">' +
         '<div class="stage-title-wrap"><span class="stage-dot"></span><span class="stage-name">' + g.name + '</span></div>' +
