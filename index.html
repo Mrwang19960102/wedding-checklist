@@ -1210,12 +1210,17 @@ function renderDecor() {
   const total = all.length;
   const done = all.filter(t => t.done).length;
   const percent = total > 0 ? Math.round(done / total * 100) : 0;
+  const days = daysUntil(state.profile.weddingDate);
   document.getElementById('decor-hero').innerHTML =
     '<div class="hero">' +
       '<div class="hero-top">' +
         '<div style="flex:1;min-width:0">' +
           '<div class="hero-names">备婚清单</div>' +
           '<div class="hero-date">板块：装饰 · 香烟酒水 · 服装</div>' +
+        '</div>' +
+        '<div class="countdown-badge">' +
+          '<span class="countdown-num">' + (days >= 0 ? days : '囍') + '</span>' +
+          '<span class="countdown-label">' + (days >= 0 ? '天后婚礼' : '已完婚') + '</span>' +
         '</div>' +
       '</div>' +
       '<div class="hero-divider"></div>' +
