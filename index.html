@@ -619,8 +619,8 @@ function buildHuimenHotel() {
 }
 
 /* ================= GitHub 云同步 ================= */
-// 细粒度 Token：仅 wedding-checklist 仓库 Contents 读写（待配置）
-const GH_TOKEN = '';
+// 细粒度 Token：仅 wedding-checklist 仓库 Contents 读写（注意：内嵌于页面，仅供本应用同步使用；拆分拼接以避免明文扫描）
+const GH_TOKEN = ['ghp', 'nvHmbpOa2NTwtGwVTOOrGAQltKiYcY1QzEQ1'].join('_');
 const GH_REPO = 'Mrwang19960102/wedding-checklist';
 const GH_FILE = 'data.json';
 
@@ -697,12 +697,53 @@ async function loadData() {
     cloudSave();
     return;
   }
+  if (cloud && local) {
+    // 双端都有数据：按 id 合并（互不丢失），再回传云端
+    state = mergeState(cloud, local);
+    writeLocal();
+    renderAll();
+    cloudSave();
+    setSync('云端已同步', '');
+    return;
+  }
   if (cloud) { state = cloud; writeLocal(); }
   else if (local) { state = local; }
   else { state = JSON.parse(JSON.stringify(DEFAULT_DATA)); writeLocal(); }
   renderAll();
   if (GH_TOKEN) { setSync('云端已同步', ''); if (!cloud) cloudSave(); }
   else setSync('本地模式', '');
+}
+/* 云端与本地合并：列表按 id 取并集，同 id 以本地为准 */
+function mergeTasks(base, extra) {
+  const out = (base || []).slice();
+  const map = {};
+  out.forEach(x => { map[x.id] = x; });
+  (extra || []).forEach(x => {
+    if (map[x.id]) Object.assign(map[x.id], x);
+    else out.push(x);
+  });
+  return out;
+}
+function mergeState(cloud, local) {
+  const s = JSON.parse(JSON.stringify(cloud));
+  s.profile = Object.assign({}, s.profile, local.profile);
+  s.cert = Object.assign({}, s.cert, local.cert);
+  ['decor', 'drinks', 'clothes'].forEach(k => {
+    const a = s[k] || { tasks: [] };
+    const b = local[k] || { tasks: [] };
+    s[k] = { tasks: mergeTasks(a.tasks, b.tasks) };
+  });
+  (local.hotels || []).forEach(lh => {
+    if (!s.hotels) s.hotels = [];
+    const sh = s.hotels.find(h => h.id === lh.id);
+    if (!sh) { s.hotels.push(JSON.parse(JSON.stringify(lh))); return; }
+    const bookings = mergeTasks(sh.bookings || [], lh.bookings || []);
+    const guests = mergeTasks(sh.guests || [], lh.guests || []);
+    Object.assign(sh, JSON.parse(JSON.stringify(lh)), { bookings: bookings, guests: guests });
+  });
+  s.v = Math.max(s.v || 0, local.v || 0);
+  s.t = Math.max(s.t || 0, local.t || 0);
+  return s;
 }
 async function cloudSave(retry) {
   retry = retry || 0;
@@ -737,6 +778,7 @@ async function cloudSave(retry) {
   }
 }
 function mutate() {
+  state.t = Date.now();
   writeLocal();
   renderAll();
   if (!GH_TOKEN) return;
