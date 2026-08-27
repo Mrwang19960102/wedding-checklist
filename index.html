@@ -1215,7 +1215,7 @@ function renderDecor() {
       '<div class="hero-top">' +
         '<div style="flex:1;min-width:0">' +
           '<div class="hero-names">备婚清单</div>' +
-          '<div class="hero-date">板块：装饰 · 酒水 · 服装</div>' +
+          '<div class="hero-date">板块：装饰 · 香烟酒水 · 服装</div>' +
         '</div>' +
       '</div>' +
       '<div class="hero-divider"></div>' +
@@ -1321,6 +1321,7 @@ function submitDecor() {
 
 /* ================= 清单 · 酒水板块 ================= */
 const DRINK_GROUPS = [
+  { id: 'dj_cig', name: '香烟' },
   { id: 'dj_baijiu', name: '白酒' },
   { id: 'dj_wine', name: '红酒' },
   { id: 'dj_beer', name: '啤酒' },
@@ -1339,7 +1340,7 @@ function renderDrinks() {
   if (!state.drinks) state.drinks = { tasks: [] };
   const secOpen = expandedSection === 'drinks';
   let html = '<div class="section-head" onclick="toggleSection(\'drinks\')">' +
-    '<span class="section-title-wrap">酒水<span class="section-chev' + (secOpen ? ' open' : '') + '">▾</span></span>' +
+    '<span class="section-title-wrap">香烟酒水<span class="section-chev' + (secOpen ? ' open' : '') + '">▾</span></span>' +
     '<span class="section-add" onclick="event.stopPropagation();openAddDrink()">+ 添加</span></div>' +
     '<div class="section-body' + (secOpen ? ' open' : '') + '">';
   DRINK_GROUPS.forEach(g => {
@@ -1353,7 +1354,7 @@ function renderDrinks() {
       '</div>' +
       '<div class="decor-body' + (open ? ' open' : '') + '"><div class="task-list">';
     if (tasks.length === 0) {
-      html += '<span class="empty-tip">暂无酒水事项，点右上「+ 添加」</span>';
+      html += '<span class="empty-tip">暂无香烟酒水事项，点右上「+ 添加」</span>';
     } else {
       tasks.forEach(t => {
         html += '<div class="task' + (t.done ? ' done' : '') + '">' +
@@ -1379,7 +1380,7 @@ function toggleDrink(id) {
   mutate();
 }
 function deleteDrink(id) {
-  askConfirm('确定要删除这条酒水事项吗？', () => {
+  askConfirm('确定要删除这条香烟酒水事项吗？', () => {
     state.drinks.tasks = state.drinks.tasks.filter(t => t.id !== id);
     mutate();
     showToast('已删除');
@@ -1390,7 +1391,7 @@ function openAddChoice() {
     '<div class="confirm-text">选择要添加到的板块</div>' +
     '<div class="confirm-btns">' +
       '<button class="btn-ghost" onclick="closeModal();openAddDecor()">装饰</button>' +
-      '<button class="btn-primary" onclick="closeModal();openAddDrink()">酒水</button>' +
+      '<button class="btn-primary" onclick="closeModal();openAddDrink()">香烟酒水</button>' +
       '<button class="btn-ghost" onclick="closeModal();openAddCloth()">服装</button>' +
     '</div>');
 }
@@ -1406,12 +1407,12 @@ function openDrinkForm(t) {
   DRINK_GROUPS.forEach(g => {
     chips += '<button class="chip form' + (g.id === modalDrinkGroup ? ' active' : '') + '" data-dj="' + g.id + '" onclick="pickDrinkGroup(\'' + g.id + '\')">' + g.name + '</button>';
   });
-  openModal(t ? '修改酒水事项' : '添加酒水事项',
+  openModal(t ? '修改香烟酒水事项' : '添加香烟酒水事项',
     '<label class="f-label">事项内容</label>' +
     '<input class="f-input" id="ni-title" maxlength="30" placeholder="例如：白酒 10 箱" value="' + (t ? esc(t.title) : '') + '">' +
     '<label class="f-label">备注（可选）</label>' +
     '<input class="f-input" id="ni-desc" maxlength="60" placeholder="补充备注，如品牌、规格、购买渠道等" value="' + (t ? esc(t.desc) : '') + '">' +
-    '<label class="f-label">酒水分类</label>' +
+    '<label class="f-label">香烟酒水分类</label>' +
     '<div class="form-chips" id="ni-groups">' + chips + '</div>' +
     '<button class="btn-primary" onclick="submitDrink()">' + (t ? '保存修改' : '确认添加') + '</button>');
   setTimeout(() => document.getElementById('ni-title').focus(), 300);
