@@ -989,7 +989,6 @@ function openBookingForm(hotelId, b) {
       '<div><label class="f-label">备注</label><input class="f-input" id="nb-note" maxlength="30" placeholder="可选" value="' + (b ? esc(b.note) : '') + '"></div>' +
     '</div>' +
     '<button class="btn-primary" onclick="submitBooking()">' + (b ? '保存修改' : '确认添加') + '</button>');
-  setTimeout(() => document.getElementById('nb-room').focus(), 300);
 }
 function submitBooking() {
   const h = findHotel(bookingHotelId);
@@ -1065,7 +1064,6 @@ function openGuestForm(hotelId, g) {
     '<label class="f-label">备注（可选）</label>' +
     '<input class="f-input" id="ng-note" maxlength="40" placeholder="特殊需求" value="' + (g ? esc(g.note) : '') + '">' +
     '<button class="btn-primary" onclick="submitGuest()">' + (g ? '保存修改' : '确认添加') + '</button>');
-  setTimeout(() => document.getElementById('ng-name').focus(), 300);
 }
 function pickGuestHotel(id) {
   guestHotelId = id;
@@ -1298,7 +1296,6 @@ function openDecorForm(t) {
     '<label class="f-label">装饰区域</label>' +
     '<div class="form-chips" id="nd-groups">' + chips + '</div>' +
     '<button class="btn-primary" onclick="submitDecor()">' + (t ? '保存修改' : '确认添加') + '</button>');
-  setTimeout(() => document.getElementById('nd-title').focus(), 300);
 }
 function pickDecorGroup(id) {
   modalDecorGroup = id;
@@ -1420,7 +1417,6 @@ function openDrinkForm(t) {
     '<label class="f-label">香烟酒水分类</label>' +
     '<div class="form-chips" id="ni-groups">' + chips + '</div>' +
     '<button class="btn-primary" onclick="submitDrink()">' + (t ? '保存修改' : '确认添加') + '</button>');
-  setTimeout(() => document.getElementById('ni-title').focus(), 300);
 }
 function pickDrinkGroup(id) {
   modalDrinkGroup = id;
@@ -1532,7 +1528,6 @@ function openClothForm(t) {
     '<label class="f-label">服装分类</label>' +
     '<div class="form-chips" id="nc-groups">' + chips + '</div>' +
     '<button class="btn-primary" onclick="submitCloth()">' + (t ? '保存修改' : '确认添加') + '</button>');
-  setTimeout(() => document.getElementById('nc-title').focus(), 300);
 }
 function pickClothGroup(id) {
   modalClothGroup = id;
