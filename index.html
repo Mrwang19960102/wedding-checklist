@@ -574,10 +574,10 @@ function buildDefaultHotel() {
     highlights: ['2024 年开业 · 嵩山风景名胜区高档酒店榜 No.1', '两栋楼 616 张床位 · 餐饮位 1200 余 · 免费停车位 295 个'],
     notes: ['尽量高楼层', '房间不要靠近电梯井'],
     bookings: [
-      { id: 'bk_1', name: '李永鑫', idNo: '410725199801239795', room: '大床房', dates: '2026.10.2', nights: 1, count: 1, note: '' },
-      { id: 'bk_2', name: '李领领', idNo: '412728199602280091', room: '大床房', dates: '2026.10.2', nights: 1, count: 1, note: '' },
-      { id: 'bk_3', name: '王子昊', idNo: '652301199804200814', room: '大床房', dates: '2026.10.1~10.2', nights: 2, count: 1, note: '' },
-      { id: 'bk_4', name: '叔叔阿姨', idNo: '', room: '大床房 或者 标间', dates: '2026.10.1~10.4', nights: 3, count: 1, note: '' },
+      { id: 'bk_1', name: '李永鑫', idNo: '410725199801239795', room: '大床房', start: '2026-10-02', end: '2026-10-03', nights: 1, count: 1, note: '' },
+      { id: 'bk_2', name: '李领领', idNo: '412728199602280091', room: '大床房', start: '2026-10-02', end: '2026-10-03', nights: 1, count: 1, note: '' },
+      { id: 'bk_3', name: '王子昊', idNo: '652301199804200814', room: '大床房', start: '2026-10-01', end: '2026-10-03', nights: 2, count: 1, note: '' },
+      { id: 'bk_4', name: '叔叔阿姨', idNo: '', room: '大床房 或者 标间', start: '2026-10-01', end: '2026-10-04', nights: 3, count: 1, note: '' },
     ],
     guests: [],
   };
@@ -599,7 +599,7 @@ function buildPickupHotel() {
       '不要在电器设备上悬挂重物或粘贴装饰品，以免影响正常运行或造成外观损坏',
     ],
     bookings: [
-      { id: 'bk_1', room: '总统套房', dates: '2026.10.2~2026.10.3', nights: 1, count: 1, note: '接亲用' },
+      { id: 'bk_1', room: '总统套房', start: '2026-10-02', end: '2026-10-03', nights: 1, count: 1, note: '接亲用' },
     ],
     guests: [],
   };
@@ -822,6 +822,28 @@ function renderAll() {
     }
     state.v = 6;
   }
+  // v8 迁移：预定改为入住/离店日期，晚数自动计算
+  if (!state.v || state.v < 8) {
+    (state.hotels || []).forEach(h => {
+      (h.bookings || []).forEach(b => {
+        if (!b.start && b.dates) {
+          const m = String(b.dates).match(/^(\d{4})\.(\d{1,2})\.(\d{1,2})(?:\s*~\s*(?:(\d{4})\.)?(\d{1,2})\.(\d{1,2}))?$/);
+          if (m) {
+            b.start = m[1] + '-' + String(+m[2]).padStart(2, '0') + '-' + String(+m[3]).padStart(2, '0');
+            if (m[5]) {
+              b.end = (m[4] || m[1]) + '-' + String(+m[5]).padStart(2, '0') + '-' + String(+m[6]).padStart(2, '0');
+            } else {
+              const d = new Date(+m[1], +m[2] - 1, +m[3]);
+              d.setDate(d.getDate() + (b.nights || 1));
+              b.end = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+            }
+            b.nights = Math.max(1, calcNights(b.start, b.end));
+          }
+        }
+      });
+    });
+    state.v = 8;
+  }
   state.hotels.forEach(h => {
     if (!('address' in h)) h.address = '';
     if (!('phone' in h)) h.phone = '';
@@ -874,7 +896,7 @@ function renderHotel() {
     (h.bookings || []).forEach(b => {
       bk += '<div class="guest-row"><div class="guest-info">' +
         '<div class="guest-top"><span class="guest-name">' + esc(b.name || b.room) + '</span><span class="guest-room">' + esc(b.room) + '</span></div>' +
-        '<span class="guest-meta">' + esc(b.dates) + ' · ' + b.nights + ' 晚 · ' + b.count + ' 间</span>' +
+        '<span class="guest-meta">' + esc(fmtRange(b)) + ' · ' + b.nights + ' 晚 · ' + b.count + ' 间</span>' +
         (b.idNo ? '<span class="guest-idno">' + esc(b.idNo) + '</span>' : '') +
         (b.note ? '<span class="guest-meta">' + esc(b.note) + '</span>' : '') +
         '</div>' +
@@ -964,6 +986,30 @@ function openMap(id) {
 /* ---------- 预定 ---------- */
 let editBookingId = '';
 let bookingHotelId = '';
+function fmtMD(iso) { const p = iso.split('-'); return parseInt(p[1], 10) + '.' + parseInt(p[2], 10); }
+function fmtRange(b) {
+  if (!b.start) return b.dates || '待定';
+  const p = b.start.split('-');
+  const s = p[0] + '.' + fmtMD(b.start);
+  if (!b.end) return s;
+  const q = b.end.split('-');
+  return s + '~' + (q[0] === p[0] ? fmtMD(b.end) : q[0] + '.' + fmtMD(b.end));
+}
+function calcNights(s, e) {
+  return Math.round((new Date(e) - new Date(s)) / 86400000);
+}
+function updateNightsTip() {
+  const tip = document.getElementById('nb-nights-tip');
+  if (!tip) return;
+  const s = document.getElementById('nb-start').value;
+  const e = document.getElementById('nb-end').value;
+  if (s && e) {
+    const n = calcNights(s, e);
+    tip.textContent = n >= 1 ? '自动计算：共 ' + n + ' 晚' : '离店日期需晚于入住日期';
+  } else {
+    tip.textContent = '选择入住/离店日期后自动计算晚数';
+  }
+}
 function openAddBooking(hotelId) { openBookingForm(hotelId, null); }
 function openEditBooking(hotelId, id) {
   const h = findHotel(hotelId);
@@ -981,26 +1027,32 @@ function openBookingForm(hotelId, b) {
     '<label class="f-label">房型</label>' +
     '<input class="f-input" id="nb-room" maxlength="20" placeholder="例如：总统套房" value="' + (b ? esc(b.room) : '') + '">' +
     '<div class="row2">' +
-      '<div><label class="f-label">日期</label><input class="f-input" id="nb-dates" maxlength="30" placeholder="2026.10.2~2026.10.3" value="' + (b ? esc(b.dates) : '') + '"></div>' +
-      '<div><label class="f-label">晚数</label><input class="f-input" id="nb-nights" type="number" inputmode="numeric" min="1" value="' + (b ? b.nights : 1) + '"></div>' +
+      '<div><label class="f-label">入住日期</label><input class="f-input" id="nb-start" type="date" value="' + (b && b.start ? b.start : '') + '" onchange="updateNightsTip()"></div>' +
+      '<div><label class="f-label">离店日期</label><input class="f-input" id="nb-end" type="date" value="' + (b && b.end ? b.end : '') + '" onchange="updateNightsTip()"></div>' +
     '</div>' +
+    '<span class="card-tip" id="nb-nights-tip" style="display:block;margin-top:2px;"></span>' +
     '<div class="row2">' +
       '<div><label class="f-label">数量（间）</label><input class="f-input" id="nb-count" type="number" inputmode="numeric" min="1" value="' + (b ? b.count : 1) + '"></div>' +
       '<div><label class="f-label">备注</label><input class="f-input" id="nb-note" maxlength="30" placeholder="可选" value="' + (b ? esc(b.note) : '') + '"></div>' +
     '</div>' +
     '<button class="btn-primary" onclick="submitBooking()">' + (b ? '保存修改' : '确认添加') + '</button>');
+  updateNightsTip();
 }
 function submitBooking() {
   const h = findHotel(bookingHotelId);
   if (!h) return;
   const room = document.getElementById('nb-room').value.trim();
   if (!room) { showToast('请输入房型'); return; }
+  const start = document.getElementById('nb-start').value;
+  const end = document.getElementById('nb-end').value;
+  if (start && end && calcNights(start, end) < 1) { showToast('离店日期需晚于入住日期'); return; }
   const rec = {
     name: document.getElementById('nb-name').value.trim(),
     idNo: document.getElementById('nb-idno').value.trim(),
     room: room,
-    dates: document.getElementById('nb-dates').value.trim() || '待定',
-    nights: Math.max(1, parseInt(document.getElementById('nb-nights').value, 10) || 1),
+    start: start,
+    end: end,
+    nights: (start && end) ? Math.max(1, calcNights(start, end)) : 1,
     count: Math.max(1, parseInt(document.getElementById('nb-count').value, 10) || 1),
     note: document.getElementById('nb-note').value.trim(),
   };
