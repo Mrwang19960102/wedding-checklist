@@ -295,8 +295,9 @@
 
   /* ---------- 确认弹窗 ---------- */
   .confirm-text { font-size: 14px; color: var(--text2); line-height: 1.7; }
-  .confirm-btns { display: flex; gap: 10px; margin-top: 24px; }
+  .confirm-btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
   .confirm-btns .btn-primary { flex: 1; margin-top: 0; }
+  .confirm-btns .btn-ghost { flex: 1 1 calc(33% - 7px); }
   .btn-ghost {
     flex: 1; height: 50px; border-radius: 14px;
     background: rgba(120,120,128,.12); color: var(--text);
@@ -563,6 +564,7 @@ const DEFAULT_DATA = {
   decor: { tasks: [] },
   drinks: { tasks: [] },
   clothes: { tasks: [] },
+  four: { tasks: [] },
 };
 function buildDefaultHotel() {
   return {
@@ -728,7 +730,7 @@ function mergeState(cloud, local) {
   const s = JSON.parse(JSON.stringify(cloud));
   s.profile = Object.assign({}, s.profile, local.profile);
   s.cert = Object.assign({}, s.cert, local.cert);
-  ['decor', 'drinks', 'clothes'].forEach(k => {
+  ['decor', 'drinks', 'clothes', 'four'].forEach(k => {
     const a = s[k] || { tasks: [] };
     const b = local[k] || { tasks: [] };
     s[k] = { tasks: mergeTasks(a.tasks, b.tasks) };
@@ -896,6 +898,7 @@ function renderAll() {
   });
   if (!state.drinks) state.drinks = { tasks: [] };
   if (!state.clothes) state.clothes = { tasks: [] };
+  if (!state.four) state.four = { tasks: [] };
   if (!state.cert) state.cert = { date: '2026-09-19', place: '南京市金陵浪漫中心' };
   renderListSections();
   renderCert();
@@ -1218,7 +1221,7 @@ function renderMine() {
   if (document.activeElement !== groom) groom.value = state.profile.groomName;
   if (document.activeElement !== bride) bride.value = state.profile.brideName;
   if (document.activeElement !== date) date.value = state.profile.weddingDate;
-  const listTasks = (state.decor ? state.decor.tasks : []).concat(state.drinks ? state.drinks.tasks : [], state.clothes ? state.clothes.tasks : []);
+  const listTasks = (state.decor ? state.decor.tasks : []).concat(state.drinks ? state.drinks.tasks : [], state.clothes ? state.clothes.tasks : [], state.four ? state.four.tasks : []);
   const dDone = listTasks.filter(t => t.done).length;
   const hotels = state.hotels || [];
   const bookings = hotels.reduce((s, h) => s + (h.bookings ? h.bookings.length : 0), 0);
@@ -1287,6 +1290,7 @@ function renderListSections() {
   renderDecor();
   renderDrinks();
   renderClothes();
+  renderFour();
 }
 let expandedDecorGroups = {};
 function toggleDecorGroup(id) {
@@ -1298,7 +1302,8 @@ function renderDecor() {
   if (!state.decor) state.decor = { tasks: [] };
   if (!state.drinks) state.drinks = { tasks: [] };
   if (!state.clothes) state.clothes = { tasks: [] };
-  const all = state.decor.tasks.concat(state.drinks.tasks, state.clothes.tasks);
+  if (!state.four) state.four = { tasks: [] };
+  const all = state.decor.tasks.concat(state.drinks.tasks, state.clothes.tasks, state.four.tasks);
   const total = all.length;
   const done = all.filter(t => t.done).length;
   const percent = total > 0 ? Math.round(done / total * 100) : 0;
@@ -1308,7 +1313,7 @@ function renderDecor() {
       '<div class="hero-top">' +
         '<div style="flex:1;min-width:0">' +
           '<div class="hero-names">备婚清单</div>' +
-          '<div class="hero-date">板块：装饰 · 香烟酒水 · 服装</div>' +
+          '<div class="hero-date">板块：装饰 · 香烟酒水 · 服装 · 四大金刚</div>' +
         '</div>' +
         '<div class="countdown-badge">' +
           '<span class="countdown-num">' + (days >= 0 ? days : '囍') + '</span>' +
@@ -1489,6 +1494,7 @@ function openAddChoice() {
       '<button class="btn-ghost" onclick="closeModal();openAddDecor()">装饰</button>' +
       '<button class="btn-primary" onclick="closeModal();openAddDrink()">香烟酒水</button>' +
       '<button class="btn-ghost" onclick="closeModal();openAddCloth()">服装</button>' +
+      '<button class="btn-ghost" onclick="closeModal();openAddFour()">四大金刚</button>' +
     '</div>');
 }
 function openAddDrink() { openDrinkForm(null); }
@@ -1641,6 +1647,111 @@ function submitCloth() {
     showToast('已修改');
   } else {
     state.clothes.tasks.push({ id: 'cf_' + Date.now(), groupId: modalClothGroup, title: title, desc: desc, done: false });
+    closeModal();
+    mutate();
+    showToast('已添加');
+  }
+}
+
+/* ================= 清单 · 四大金刚板块 ================= */
+const FOUR_GROUPS = [
+  { id: 'fj_host', name: '司仪' },
+  { id: 'fj_makeup', name: '跟妆' },
+  { id: 'fj_photo', name: '摄影' },
+  { id: 'fj_video', name: '摄像' },
+];
+let editFourId = '';
+let modalFourGroup = 'fj_host';
+let expandedFourGroups = {};
+function toggleFourGroup(id) {
+  expandedFourGroups[id] = !expandedFourGroups[id];
+  renderListSections();
+}
+
+function renderFour() {
+  if (!state.four) state.four = { tasks: [] };
+  let html = '<div class="section-head">四大金刚<span class="section-add" onclick="openAddFour()">+ 添加</span></div>';
+  FOUR_GROUPS.forEach(g => {
+    const tasks = state.four.tasks.filter(t => t.groupId === g.id);
+    const gdone = tasks.filter(t => t.done).length;
+    const open = !!expandedFourGroups[g.id];
+    html += '<div class="card">' +
+      '<div class="stage-head decor-head" onclick="toggleFourGroup(\'' + g.id + '\')">' +
+        '<div class="stage-title-wrap"><span class="stage-dot"></span><span class="stage-name">' + g.name + '</span></div>' +
+        '<div class="decor-head-right"><span class="stage-count">' + gdone + '/' + tasks.length + '</span><span class="decor-chev' + (open ? ' open' : '') + '">▾</span></div>' +
+      '</div>' +
+      '<div class="decor-body' + (open ? ' open' : '') + '"><div class="task-list">';
+    if (tasks.length === 0) {
+      html += '<span class="empty-tip">暂无' + g.name + '事项，点右上「+ 添加」</span>';
+    } else {
+      tasks.forEach(t => {
+        html += '<div class="task' + (t.done ? ' done' : '') + '">' +
+          '<div class="checkbox' + (t.done ? ' done' : '') + '" onclick="toggleFour(\'' + t.id + '\')">✓</div>' +
+          '<div class="task-content" onclick="toggleFour(\'' + t.id + '\')">' +
+            '<div class="task-title-row"><span class="task-title">' + esc(t.title) + '</span></div>' +
+            (t.desc ? '<span class="task-desc">' + esc(t.desc) + '</span>' : '') +
+          '</div>' +
+          '<div class="task-edit" role="button" aria-label="修改" onclick="openEditFour(\'' + t.id + '\')">✎</div>' +
+          '<div class="task-del" role="button" aria-label="删除" onclick="deleteFour(\'' + t.id + '\')">✕</div>' +
+        '</div>';
+      });
+    }
+    html += '</div></div></div>';
+  });
+  document.getElementById('decor-wrap').innerHTML += html;
+}
+function toggleFour(id) {
+  const t = state.four.tasks.find(x => x.id === id);
+  if (!t) return;
+  t.done = !t.done;
+  mutate();
+}
+function deleteFour(id) {
+  askConfirm('确定要删除这条四大金刚事项吗？', () => {
+    state.four.tasks = state.four.tasks.filter(t => t.id !== id);
+    mutate();
+    showToast('已删除');
+  });
+}
+function openAddFour() { openFourForm(null); }
+function openEditFour(id) {
+  const t = state.four.tasks.find(x => x.id === id);
+  if (t) openFourForm(t);
+}
+function openFourForm(t) {
+  editFourId = t ? t.id : '';
+  modalFourGroup = t ? t.groupId : 'fj_host';
+  let chips = '';
+  FOUR_GROUPS.forEach(g => {
+    chips += '<button class="chip form' + (g.id === modalFourGroup ? ' active' : '') + '" data-fj="' + g.id + '" onclick="pickFourGroup(\'' + g.id + '\')">' + g.name + '</button>';
+  });
+  openModal(t ? '修改四大金刚事项' : '添加四大金刚事项',
+    '<label class="f-label">事项内容</label>' +
+    '<input class="f-input" id="nf-title" maxlength="30" placeholder="例如：司仪 张老师" value="' + (t ? esc(t.title) : '') + '">' +
+    '<label class="f-label">备注（可选）</label>' +
+    '<input class="f-input" id="nf-desc" maxlength="60" placeholder="补充备注，如联系方式、价格、档期等" value="' + (t ? esc(t.desc) : '') + '">' +
+    '<label class="f-label">分类</label>' +
+    '<div class="form-chips" id="nf-groups">' + chips + '</div>' +
+    '<button class="btn-primary" onclick="submitFour()">' + (t ? '保存修改' : '确认添加') + '</button>');
+}
+function pickFourGroup(id) {
+  modalFourGroup = id;
+  document.querySelectorAll('#nf-groups .chip').forEach(el => {
+    el.classList.toggle('active', el.dataset.fj === id);
+  });
+}
+function submitFour() {
+  const title = document.getElementById('nf-title').value.trim();
+  const desc = document.getElementById('nf-desc').value.trim();
+  if (!title) { showToast('请输入事项内容'); return; }
+  if (editFourId) {
+    const t = state.four.tasks.find(x => x.id === editFourId);
+    if (t) { t.title = title; t.desc = desc; t.groupId = modalFourGroup; }
+    closeModal();
+    mutate();
+    showToast('已修改');
+  } else {
+    state.four.tasks.push({ id: 'fj_' + Date.now(), groupId: modalFourGroup, title: title, desc: desc, done: false });
     closeModal();
     mutate();
     showToast('已添加');
