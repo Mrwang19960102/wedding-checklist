@@ -725,7 +725,6 @@ async function loadData() {
     setSync('云端已同步', '');
   } else {
     setSync('离线·本地暂存', 'err');
-    if (!local) cloudSave();
   }
 }
 /* 云端与本地合并：列表按 id 取并集，同 id 以本地为准 */
