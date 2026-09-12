@@ -690,14 +690,12 @@ async function loadData() {
     localStorage.removeItem('wc_pending');
     console.info('[Local] 数据版本升级，清理旧缓存', localVer, '->', DATA_VERSION);
   }
-  const pending = localStorage.getItem('wc_pending') === '1';
   // 先用本地（或默认）数据立即渲染，不等网络
   state = local || JSON.parse(JSON.stringify(DEFAULT_DATA));
   if (!local) writeLocal();
   renderAll();
   if (!GH_TOKEN) { setSync('本地模式', ''); return; }
-  if (pending && local) { cloudSave(); return; }
-  // 后台拉取云端（8 秒超时），成功再合并刷新
+  // 后台拉取云端（8 秒超时），成功再合并刷新（含离线暂存的重传）
   let cloud = null;
   try {
     const r = await ghGet(8000);
